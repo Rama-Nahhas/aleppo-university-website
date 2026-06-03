@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { GraduationCap, Eye, EyeOff, Globe,ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { GraduationCap, Eye, EyeOff, Globe, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const { lang, t, toggleLang } = useLanguage();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,10 +21,13 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    const success = await login(email, password);
-    if (!success) {
-      setError(t('login.error'));
+    const result = await login(email, password);
+    if (!result.success) {
+      setError(result.message || t('login.error'));
+      return;
     }
+
+    navigate('/dashboard');
   };
 
   // const demoAccounts = [
@@ -79,6 +83,10 @@ const LoginPage: React.FC = () => {
             {error && <p className="text-sm text-destructive font-medium">{error}</p>}
             <Button type="submit" className="w-full h-11 text-base font-semibold">{t('login.submit')}</Button>
           </form>
+          <div className="mt-4 text-sm text-muted-foreground text-center">
+            {lang === 'ar' ? 'ما عندك حساب؟' : "Don't have an account?"} <Link to="/register" className="text-primary font-medium">{lang === 'ar' ? 'سجل الآن' : 'Register'}</Link>
+          </div>
+          
           {/* <div className="mt-6 p-3 bg-muted rounded-lg">
             <p className="text-xs text-muted-foreground font-medium mb-2">{t('login.demo')}:</p>
             <div className="space-y-1 text-xs text-muted-foreground">

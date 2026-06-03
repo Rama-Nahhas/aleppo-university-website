@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import PublicLayout from "@/components/public/PublicLayout";
 import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
 import DashboardPage from "@/pages/DashboardPage";
 import UsersPage from "@/pages/UsersPage";
 import CollegesPage from "@/pages/CollegesPage";
@@ -27,7 +28,7 @@ import ContactPage from "@/pages/public/ContactPage";
 import MyCoursesPage from "@/pages/dashboard/MyCoursesPage";
 import MyGradesPage from "@/pages/dashboard/MyGradesPage";
 import MySchedulePage from "@/pages/dashboard/MySchedulePage";
-
+import ChangePasswordPage from "@/pages/dashboard/ChangePasswordPage";
 
 import GradesManagementPage from "@/pages/dashboard/GradesManagementPage";
 import EquipmentPage from "@/pages/dashboard/EquipmentPage";
@@ -69,6 +70,7 @@ const AppRoutes = () => (
 
     {/* Auth */}
     <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+    <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
     {/* Dashboard */}
     <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
@@ -85,6 +87,7 @@ const AppRoutes = () => (
     <Route path="/dashboard/my-courses" element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
     <Route path="/dashboard/my-grades" element={<ProtectedRoute><MyGradesPage /></ProtectedRoute>} />
     <Route path="/dashboard/my-schedule" element={<ProtectedRoute><MySchedulePage /></ProtectedRoute>} />
+    <Route path="/dashboard/change-password" element={<ProtectedRoute><ChangePasswordPage /></ProtectedRoute>} />
    
     {/* Doctor */}
    

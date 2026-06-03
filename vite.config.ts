@@ -7,7 +7,9 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080,
+    // port: 8080,
+    port: 3000, // <--- تم التعديل هنا ليعمل على المنفذ المتوافق مع الباك آيند
+    strictPort: true, // يمنع فيت من الانتقال تلقائياً لمنفذ آخر إذا كان 3000 مشغولاً
     hmr: {
       overlay: false,
     },

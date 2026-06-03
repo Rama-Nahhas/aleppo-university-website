@@ -1,11 +1,11 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   LayoutDashboard, Users, Building2, BookOpen, FlaskConical, Warehouse,
   ClipboardList, Hospital, Megaphone, LogOut, GraduationCap, ChevronLeft,
-  Globe, Calendar, Wrench, Package, FileText, Stethoscope, UserCheck
+  Globe, Calendar, Wrench, Package, FileText, Stethoscope, UserCheck, Key
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { RoleName } from '@/types';
@@ -118,6 +118,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <p className="text-xs text-sidebar-foreground/60 truncate">{user.role?.label}</p>
             </div>
           )}
+          <Link to="/dashboard/change-password" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+            <Key className="w-5 h-5 flex-shrink-0" />
+            {!collapsed && <span>{lang === 'ar' ? 'تغيير كلمة المرور' : 'Change Password'}</span>}
+          </Link>
           <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full text-sidebar-foreground/70 hover:bg-destructive/20 hover:text-destructive transition-colors">
             <LogOut className="w-5 h-5 flex-shrink-0" />
             {!collapsed && <span>{t('nav.logout')}</span>}
