@@ -19,7 +19,8 @@ const EnrollmentPage: React.FC = () => {
     toast.success(lang === 'ar' ? 'تم التسجيل بنجاح' : 'Enrolled successfully');
   };
 
-  return (
+  return ( 
+    
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
         <UserCheck className="w-6 h-6" />

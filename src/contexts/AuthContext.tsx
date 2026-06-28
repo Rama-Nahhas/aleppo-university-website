@@ -88,11 +88,38 @@ import type { User, RoleName } from '@/types';
 
 const API_URL = 'http://127.0.0.1:8000/api';
 
+interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  department_id: number;
+  year_id: number;
+  student_number: string;
+  admission_type: string;
+  birth_date: string;
+  phone: string;
+  address: string;
+}
+
+interface DoctorRegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  specialization?: string;
+  university?: string;
+  graduation_year?: string | number;
+  employment_year?: string | number;
+  work_history?: string;
+  role?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  register: (name: string, email: string, password: string, password_confirmation?: string) => Promise<{ success: boolean; message?: string }>;
+  register: (payload: RegisterPayload) => Promise<{ success: boolean; message?: string }>;
+  registerDoctor: (payload: DoctorRegisterPayload) => Promise<{ success: boolean; message?: string }>;
   changePassword: (current_password: string, password: string, password_confirmation?: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
@@ -142,10 +169,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const register = useCallback(async (name: string, email: string, password: string, password_confirmation?: string) => {
+  const register = useCallback(async (payload: RegisterPayload) => {
     try {
-      const payload = { name, email, password, password_confirmation: password_confirmation ?? password };
-      const response = await axios.post(`${API_URL}/register`, payload);
+      const response = await axios.post(`${API_URL}/register-student`, payload);
 
       const backendUser = response.data.user ?? response.data;
       const backendToken = response.data.access_token ?? response.data.token ?? null;
@@ -162,6 +188,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true };
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'فشل التسجيل، يرجى المحاولة لاحقاً';
+      return { success: false, message: errorMessage };
+    }
+  }, []);
+
+  const registerDoctor = useCallback(async (payload: DoctorRegisterPayload) => {
+    try {
+      const response = await axios.post(`${API_URL}/register-doctor`, payload);
+
+      const backendUser = response.data.user ?? response.data;
+      const backendToken = response.data.access_token ?? response.data.token ?? null;
+
+      setUser(backendUser);
+      setToken(backendToken ?? null);
+
+      localStorage.setItem('auth_user', JSON.stringify(backendUser));
+      if (backendToken) {
+        localStorage.setItem('auth_token', backendToken);
+        axios.defaults.headers.common.Authorization = `Bearer ${backendToken}`;
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'فشل تسجيل الطبيب، يرجى المحاولة لاحقاً';
       return { success: false, message: errorMessage };
     }
   }, []);
@@ -207,7 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, changePassword, logout, isAuthenticated: !!user, hasRole }}>
+    <AuthContext.Provider value={{ user, token, login, register, registerDoctor, changePassword, logout, isAuthenticated: !!user, hasRole }}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,7 +8,9 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import PublicLayout from "@/components/public/PublicLayout";
 import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
+import RegisterChoicePage from "@/pages/RegisterChoicePage";
+import RegisterPage from "@/pages/StudentRegisterPage";
+import DoctorRegisterPage from "@/pages/DoctorRegisterPage";
 import DashboardPage from "@/pages/DashboardPage";
 import UsersPage from "@/pages/UsersPage";
 import CollegesPage from "@/pages/CollegesPage";
@@ -70,7 +72,9 @@ const AppRoutes = () => (
 
     {/* Auth */}
     <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-    <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+    <Route path="/register" element={<PublicRoute><RegisterChoicePage /></PublicRoute>} />
+    <Route path="/register/student" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+    <Route path="/register/doctor" element={<PublicRoute><DoctorRegisterPage /></PublicRoute>} />
 
     {/* Dashboard */}
     <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
