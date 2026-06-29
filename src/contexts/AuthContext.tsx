@@ -1,21 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import apiClient from "../lib/axios";
 import { UserData } from "@/hooks/useAuthActions";
+
 interface AuthResponse {
   message: string;
   access_token: string;
   token_type: string;
   user: UserData;
 }
-interface RegisterData {
-  name: string;
-  email: string;
-  password: string;
-  password_confirmation?: string;
-  [key: string]: unknown;
-}
 
-interface RegisterPayload {
+export interface RegisterStudentData {
   name: string;
   email: string;
   password: string;
@@ -28,24 +22,24 @@ interface RegisterPayload {
   phone: string;
   address: string;
 }
-
-interface DoctorRegisterPayload {
+export interface RegisterDoctorData {
   name: string;
   email: string;
   password: string;
-  specialization?: string;
-  university?: string;
-  graduation_year?: string | number;
-  employment_year?: string | number;
-  work_history?: string;
-  role?: string;
+  specialization: string;
+  university: string;
+  graduation_year: number;
+  employment_year: number;
+  work_history: string;
+  role: string;
 }
 
 interface AuthContextType {
   user: UserData | null;
   token: string | null;
   login: (email: string, password: string) => Promise<UserData>;
-  register: (data: RegisterData) => Promise<void>;
+  registerStudent: (data: RegisterStudentData) => Promise<UserData>;
+  registerDoctor: (data: RegisterDoctorData) => Promise<UserData>;
   logout: () => Promise<void>;
   loading: boolean;
 }
@@ -60,13 +54,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.getItem("token"),
   );
   const [loading, setLoading] = useState<boolean>(true);
+
   const logout = async (): Promise<void> => {
     try {
       await apiClient.post("/logout");
     } catch {
-      // *** Handle error if needed
+      // Handle error if needed
     }
     localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     setToken(null);
     setUser(null);
   };
@@ -90,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
     void fetchUser();
   }, [token, user]);
+
   const login = async (email: string, password: string): Promise<UserData> => {
     const response = await apiClient.post<AuthResponse>("/login", {
       email,
@@ -104,19 +101,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return userData;
   };
 
-  const register = async (data: RegisterData): Promise<void> => {
-    const response = await apiClient.post<AuthResponse>("/register", data);
+  const registerStudent = async (
+    data: RegisterStudentData,
+  ): Promise<UserData> => {
+    const response = await apiClient.post<AuthResponse>(
+      "/register-student",
+      data,
+    );
     const { access_token, user: userData } = response.data;
 
-    // localStorage.setItem("token", access_token);
     sessionStorage.setItem("token", access_token);
     setToken(access_token);
     setUser(userData);
+
+    return userData;
+  };
+  const registerDoctor = async (
+    data: RegisterDoctorData,
+  ): Promise<UserData> => {
+    const response = await apiClient.post<AuthResponse>(
+      "/register-doctor",
+      data,
+    );
+    const { access_token, user: userData } = response.data;
+
+    sessionStorage.setItem("token", access_token);
+    setToken(access_token);
+    setUser(userData);
+
+    return userData;
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, loading }}
+      value={{
+        user,
+        token,
+        login,
+        registerStudent,
+        registerDoctor,
+        logout,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>

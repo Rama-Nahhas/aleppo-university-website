@@ -167,6 +167,7 @@ import PatientsPage from "@/pages/dashboard/PatientsPage";
 import NotFound from "@/pages/NotFound";
 import Directorate from "@/pages/Directorate";
 import CentersPage from "@/pages/public/CentersPage";
+import StudentRegisterPage from "@/pages/StudentRegisterPage";
 
 const queryClient = new QueryClient();
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
@@ -229,7 +230,23 @@ const AppRoutes = () => (
       path="/register"
       element={
         <PublicRoute>
-          <RegisterPage />
+          <RegisterChoicePage />
+        </PublicRoute>
+      }
+    />
+    <Route
+      path="/register/student"
+      element={
+        <PublicRoute>
+          <StudentRegisterPage />
+        </PublicRoute>
+      }
+    />
+    <Route
+      path="/register/doctor"
+      element={
+        <PublicRoute>
+          <DoctorRegisterPage />
         </PublicRoute>
       }
     />

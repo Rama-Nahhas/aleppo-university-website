@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import {
+  useAuth,
+  RegisterStudentData,
+  RegisterDoctorData,
+} from "../contexts/AuthContext";
 import { AxiosError } from "axios";
+
 export interface UserData {
   id: number;
   role_id: number;
@@ -18,15 +23,17 @@ export interface UserData {
   created_at: string;
   updated_at: string;
 }
+
 interface LaravelErrorResponse {
   message?: string;
   errors?: Record<string, string[]>;
 }
 
 export const useAuthActions = () => {
-  const { login } = useAuth();
+  const { login, registerStudent, registerDoctor } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
   const handleLogin = async (
     credentials: Record<string, string>,
     onSuccess: (user: UserData) => void,
@@ -39,7 +46,6 @@ export const useAuthActions = () => {
       onSuccess(user);
     } catch (err: unknown) {
       const axiosError = err as AxiosError<LaravelErrorResponse>;
-
       setError(
         axiosError.response?.data?.message ||
           "خطأ في البريد الإلكتروني أو كلمة المرور. يرجى المحاولة مجدداً.",
@@ -49,5 +55,78 @@ export const useAuthActions = () => {
     }
   };
 
-  return { handleLogin, isSubmitting, error };
+  const handleRegisterStu = async (
+    formData: Record<string, string>,
+    onSuccess: (user: UserData) => void,
+  ): Promise<void> => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const payload: RegisterStudentData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.password_confirmation,
+        department_id: Number(formData.department_id),
+        year_id: Number(formData.year_id),
+        student_number: formData.student_number,
+        admission_type: formData.admission_type,
+        birth_date: formData.birth_date,
+        phone: formData.phone,
+        address: formData.address,
+      };
+
+      const user = await registerStudent(payload);
+      onSuccess(user);
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<LaravelErrorResponse>;
+      setError(
+        axiosError.response?.data?.message ||
+          "حدث خطأ أثناء إنشاء حساب الطالب. يرجى المحاولة مجدداً.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const handleRegisterDoctor = async (
+    formData: Record<string, string>,
+    onSuccess: (user: UserData) => void,
+  ): Promise<void> => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const payload: RegisterDoctorData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        specialization: formData.specialization,
+        university: formData.university,
+        graduation_year: Number(formData.graduation_year),
+        employment_year: Number(formData.employment_year),
+        work_history: formData.work_history,
+        role: "doctor",
+      };
+
+      const user = await registerDoctor(payload);
+      onSuccess(user);
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<LaravelErrorResponse>;
+      setError(
+        axiosError.response?.data?.message ||
+          "حدث خطأ أثناء إنشاء حساب الطبيب. يرجى المحاولة مجدداً.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return {
+    handleLogin,
+    handleRegisterStu,
+    handleRegisterDoctor,
+    isSubmitting,
+    error,
+  };
 };
