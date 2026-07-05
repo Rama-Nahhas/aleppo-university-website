@@ -193,10 +193,10 @@ const RegisterPage: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="1">السنة الأولى</SelectItem>
-                      <SelectItem value="1">السنة الثانية</SelectItem>
-                      <SelectItem value="1">السنة الثالثة</SelectItem>
-                      <SelectItem value="1">السنة الرابعة</SelectItem>
-                      <SelectItem value="1">السنة الخامسة</SelectItem>
+                      <SelectItem value="2">السنة الثانية</SelectItem>
+                      <SelectItem value="3">السنة الثالثة</SelectItem>
+                      <SelectItem value="4">السنة الرابعة</SelectItem>
+                      <SelectItem value="5">السنة الخامسة</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
