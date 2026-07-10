@@ -8,6 +8,7 @@ import {
   Globe, Calendar, Wrench, Package, FileText, Stethoscope, UserCheck, Key
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { resolveRoleName } from '@/lib/roleUtils';
 import type { RoleName } from '@/types';
 
 interface NavItem {
@@ -32,7 +33,7 @@ const allNavItems: NavItem[] = [
   { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['admin'] },
   // Student
   { to: '/dashboard/my-courses', icon: BookOpen, labelAr: 'مقرراتي', labelEn: 'My Courses', roles: ['student'] },
-  { to: '/dashboard/my-grades', icon: FileText, labelAr: 'درجاتي', labelEn: 'My Grades', roles: ['student'] },
+  // { to: '/dashboard/my-grades', icon: FileText, labelAr: 'درجاتي', labelEn: 'My Grades', roles: ['student'] },
   { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['student'] },
   
   // Doctor
@@ -50,12 +51,12 @@ const allNavItems: NavItem[] = [
 ];
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, logout, hasRole } = useAuth();
+  const { user, logout } = useAuth();
   const { lang, t, toggleLang } = useLanguage();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = React.useState(false);
 
-  const roleName = user?.role?.name as RoleName | undefined;
+  const roleName = resolveRoleName(user as any) as RoleName | undefined;
 
   const navItems = allNavItems.filter(item => {
     if (!item.roles) return true;
