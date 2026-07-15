@@ -46,10 +46,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const getStoredUser = (): UserData | null => {
+  const stored =
+    localStorage.getItem("user") || sessionStorage.getItem("user");
+  return stored ? JSON.parse(stored) : null;
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<UserData | null>(null);
+  const [user, setUser] = useState<UserData | null>(getStoredUser);
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token"),
   );
@@ -63,6 +69,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     localStorage.removeItem("token");
     sessionStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     setToken(null);
     setUser(null);
   };
@@ -73,6 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           const response = await apiClient.get<UserData>("/user");
           setUser(response.data);
+          localStorage.setItem("user", JSON.stringify(response.data));
         } catch (error) {
           if (
             error.response &&
@@ -95,6 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const { access_token, user: userData } = response.data;
 
     localStorage.setItem("token", access_token);
+    localStorage.setItem("user", JSON.stringify(userData));
     setToken(access_token);
     setUser(userData);
 
@@ -111,6 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const { access_token, user: userData } = response.data;
 
     sessionStorage.setItem("token", access_token);
+    sessionStorage.setItem("user", JSON.stringify(userData));
     setToken(access_token);
     setUser(userData);
 
@@ -126,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const { access_token, user: userData } = response.data;
 
     sessionStorage.setItem("token", access_token);
+    sessionStorage.setItem("user", JSON.stringify(userData));
     setToken(access_token);
     setUser(userData);
 
