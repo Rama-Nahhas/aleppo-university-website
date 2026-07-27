@@ -72,7 +72,9 @@ const DoctorRegisterPage: React.FC = () => {
           className: "bg-green-600 text-white font-semibold",
         });
 
-        navigate("/dashboard");
+        navigate("/register/doctor/verify", {
+          state: { email: values.email },
+        });
       },
     );
   };
