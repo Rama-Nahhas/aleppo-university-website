@@ -30,10 +30,10 @@ const allNavItems: NavItem[] = [
   { to: '/dashboard/warehouses', icon: Warehouse, labelAr: 'المستودعات', labelEn: 'Warehouses', roles: ['admin', 'warehouse_manager'] },
   { to: '/dashboard/orders', icon: ClipboardList, labelAr: 'الطلبات', labelEn: 'Orders', roles: ['admin', 'warehouse_manager', 'lab_technician', 'dean'] },
   { to: '/dashboard/hospital', icon: Hospital, labelAr: 'المستشفى', labelEn: 'Hospital', roles: ['admin', 'medical_doctor', 'nurse'] },
-  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['admin'] },
+  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['admin', 'student'] },
   // Student
   { to: '/dashboard/my-courses', icon: BookOpen, labelAr: 'مقرراتي', labelEn: 'My Courses', roles: ['student'] },
-  // { to: '/dashboard/my-grades', icon: FileText, labelAr: 'درجاتي', labelEn: 'My Grades', roles: ['student'] },
+  { to: '/dashboard/my-grades', icon: FileText, labelAr: 'علاماتي', labelEn: 'My Grades', roles: ['student'] },
   { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['student'] },
   
   // Doctor
