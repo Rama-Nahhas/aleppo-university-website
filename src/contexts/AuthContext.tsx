@@ -6,8 +6,11 @@ interface AuthResponse {
   message: string;
   access_token: string;
   token_type: string;
-  user: UserData;
+  user: UserData | UserData[];
 }
+
+const normalizeUser = (user: UserData | UserData[]): UserData =>
+  Array.isArray(user) ? user[0] : user;
 
 export interface RegisterStudentData {
   name: string;
@@ -79,9 +82,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const fetchUser = async (): Promise<void> => {
       if (token && !user) {
         try {
-          const response = await apiClient.get<UserData>("/user");
-          setUser(response.data);
-          localStorage.setItem("user", JSON.stringify(response.data));
+          const response = await apiClient.get<UserData | UserData[]>("/user");
+          const fetchedUser = normalizeUser(response.data);
+          setUser(fetchedUser);
+          localStorage.setItem("user", JSON.stringify(fetchedUser));
         } catch (error) {
           if (
             error.response &&
@@ -101,7 +105,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       email,
       password,
     });
-    const { access_token, user: userData } = response.data;
+    const { access_token } = response.data;
+    const userData = normalizeUser(response.data.user);
 
     localStorage.setItem("token", access_token);
     localStorage.setItem("user", JSON.stringify(userData));
@@ -118,7 +123,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       "/register-student",
       data,
     );
-    const { access_token, user: userData } = response.data;
+    const { access_token } = response.data;
+    const userData = normalizeUser(response.data.user);
 
     sessionStorage.setItem("token", access_token);
     sessionStorage.setItem("user", JSON.stringify(userData));
@@ -134,7 +140,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       "/register-doctor",
       data,
     );
-    const { access_token, user: userData } = response.data;
+    const { access_token } = response.data;
+    const userData = normalizeUser(response.data.user);
 
     sessionStorage.setItem("token", access_token);
     sessionStorage.setItem("user", JSON.stringify(userData));

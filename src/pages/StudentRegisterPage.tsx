@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthActions, UserData } from "@/hooks/useAuthActions";
+import {
+  NamedOption,
+  useCollegeLookups,
+} from "@/hooks/students/useApiActions";
+
+const COLLEGE_ID = 1;
 
 export interface RegisterFormData {
   name: string;
@@ -36,6 +42,16 @@ const RegisterPage: React.FC = () => {
   const { toast } = useToast();
   const { lang, t, toggleLang } = useLanguage();
   const { handleRegisterStu, isSubmitting, error } = useAuthActions();
+  const { fetchDepartments } = useCollegeLookups();
+  const [departments, setDepartments] = useState<NamedOption[]>([]);
+
+  useEffect(() => {
+    const loadDepartments = async () => {
+      const data = await fetchDepartments(COLLEGE_ID);
+      setDepartments(data);
+    };
+    loadDepartments();
+  }, []);
 
   const {
     register,
@@ -168,9 +184,11 @@ const RegisterPage: React.FC = () => {
                       />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">برمجيات</SelectItem>
-                      <SelectItem value="2">شبكات حاسوبية</SelectItem>
-                      <SelectItem value="3">ذكاء صنعي</SelectItem>
+                      {departments.map((dep) => (
+                        <SelectItem key={dep.id} value={String(dep.id)}>
+                          {dep.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}

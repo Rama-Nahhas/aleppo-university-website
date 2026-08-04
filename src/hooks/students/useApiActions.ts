@@ -2,9 +2,19 @@ import { useState } from "react";
 import apiClient from "@/lib/axios";
 
 export interface Subject {
-  id: number;
-  name: string;
+  subject_id: number;
+  subject_name: string;
   doctor: { id: number; name: string };
+  mark: number | null;
+  is_success: boolean | null;
+  note: string | null;
+}
+
+interface StudentSubjectsResponse {
+  success: boolean;
+  year_id: number;
+  department_id: number;
+  subjects: Subject[];
 }
 
 export const useSubjectActions = () => {
@@ -15,10 +25,10 @@ export const useSubjectActions = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get<{ data: { subjects: Subject[] } }>(
+      const response = await apiClient.get<StudentSubjectsResponse>(
         "/student/subjects",
       );
-      return response.data.data.subjects;
+      return response.data.subjects;
     } catch (err) {
       setError("حدث خطأ أثناء جلب المقررات.");
       return [];
@@ -32,13 +42,22 @@ export const useSubjectActions = () => {
 
 export interface Schedule {
   id: number;
-  year_id: number;
-  department_id: number;
   image: string;
   is_active: boolean;
   published_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface YearSchedule {
+  year_id: number;
+  year_name: string;
+  schedule: Schedule;
+}
+
+interface StudentScheduleResponse {
+  department_id: number;
+  schedules_by_year: YearSchedule[];
 }
 
 export const useScheduleActions = () => {
@@ -49,10 +68,10 @@ export const useScheduleActions = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get<{ data: Schedule }>(
+      const response = await apiClient.get<StudentScheduleResponse>(
         "/student/schedule",
       );
-      return response.data.data;
+      return response.data;
     } catch (err) {
       setError("حدث خطأ أثناء جلب الجدول.");
       return null;

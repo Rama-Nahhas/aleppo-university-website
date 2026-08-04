@@ -47,7 +47,7 @@
 import React, { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, Loader2 } from "lucide-react";
+import { BookOpen, Loader2, Inbox } from "lucide-react";
 import { Subject, useSubjectActions } from "@/hooks/students/useApiActions";
 
 const MyCoursesPage: React.FC = () => {
@@ -70,16 +70,50 @@ const MyCoursesPage: React.FC = () => {
       <h1 className="text-2xl font-bold">
         {lang === "ar" ? "مقرراتي" : "My Courses"}
       </h1>
-      <div className="grid md:grid-cols-2 gap-4">
-        {subjects.map((s) => (
-          <Card key={s.id}>
-            <CardContent className="p-5">
-              <h3 className="font-bold">{s.name}</h3>
-              <p className="text-sm">{s.doctor.name}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {subjects.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+          <Inbox className="w-10 h-10" />
+          <p className="text-sm">
+            {lang === "ar"
+              ? "لا توجد مقررات متاحة حالياً"
+              : "No courses available yet"}
+          </p>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-4">
+          {subjects.map((s) => (
+            <Card key={s.subject_id} className="border-0 shadow-sm">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground">
+                      {s.subject_name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {lang === "ar" ? "المدرس: " : "Instructor: "}
+                      {s.doctor.name}
+                    </p>
+                    {s.mark != null && (
+                      <p className="text-sm font-bold text-primary mt-2">
+                        {lang === "ar" ? "الدرجة: " : "Grade: "}
+                        {s.mark}/100
+                      </p>
+                    )}
+                    {s.note && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {s.note}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

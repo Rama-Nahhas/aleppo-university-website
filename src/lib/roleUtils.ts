@@ -21,7 +21,7 @@ const roleIdMap: Record<number, RoleName> = {
 export const resolveRoleName = (user: RoleLikeUser | null | undefined): RoleName | undefined => {
   const rawRoleName = user?.role?.name || user?.role_name || user?.roleName;
   if (typeof rawRoleName === 'string' && rawRoleName.trim()) {
-    return rawRoleName as RoleName;
+    return rawRoleName.trim().toLowerCase() as RoleName;
   }
 
   if (typeof user?.role_id === 'number') {
