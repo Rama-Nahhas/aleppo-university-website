@@ -8,6 +8,7 @@ import {
   useScheduleActions,
   useCollegeLookups,
 } from "@/hooks/students/useApiActions";
+import { cn } from "@/lib/utils";
 
 const COLLEGE_ID = 1;
 
@@ -151,13 +152,20 @@ const MySchedulePage: React.FC = () => {
                   : "View other years' schedules"}
               </button>
 
-              {showOthers && (
-                <div className="grid md:grid-cols-2 gap-4">
-                  {otherSchedules.map((item) => (
-                    <ScheduleCard key={item.year_id} item={item} lang={lang} />
-                  ))}
+              <div
+                className={cn(
+                  "grid transition-all duration-700 ease-in-out",
+                  showOthers ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+                )}
+              >
+                <div className="overflow-hidden">
+                  <div className="grid md:grid-cols-2 gap-4 pt-1">
+                    {otherSchedules.map((item) => (
+                      <ScheduleCard key={item.year_id} item={item} lang={lang} />
+                    ))}
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           )}
         </>

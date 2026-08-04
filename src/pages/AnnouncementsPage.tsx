@@ -1,34 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { announcements as initialAnnouncements } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { resolveRoleName } from '@/lib/roleUtils';
 import type { RoleName } from '@/types';
-import { Plus, Pencil, Trash2, Megaphone, Calendar } from 'lucide-react';
-import type { Announcement } from '@/types';
+import { Plus, Pencil, Trash2, Megaphone, Calendar, Inbox, Loader2 } from 'lucide-react';
+import { Announcement, useAnnouncementActions } from '@/hooks/useAnnouncementActions';
 
 const AnnouncementsPage: React.FC = () => {
   const { user } = useAuth();
   const roleName = resolveRoleName(user as any) as RoleName | undefined;
   const canEdit = roleName === 'admin' || roleName === 'academic_doctor';
-  const [data, setData] = useState<Announcement[]>(initialAnnouncements);
+  const { fetchAnnouncements, loading } = useAnnouncementActions();
+  const [data, setData] = useState<Announcement[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Announcement | null>(null);
   const [form, setForm] = useState({ title: '', content: '' });
+
+  useEffect(() => {
+    const loadData = async () => {
+      const result = await fetchAnnouncements();
+      setData(result);
+    };
+    loadData();
+  }, []);
 
   const openCreate = () => { if (!canEdit) return; setEditing(null); setForm({ title: '', content: '' }); setDialogOpen(true); };
   const openEdit = (a: Announcement) => { if (!canEdit) return; setEditing(a); setForm({ title: a.title, content: a.content }); setDialogOpen(true); };
   const handleSave = () => {
     if (editing) setData(prev => prev.map(a => a.id === editing.id ? { ...a, ...form } : a));
-    else setData(prev => [...prev, { id: Date.now(), ...form, created_by: user?.id || 1, created_at: new Date().toISOString() }]);
+    else setData(prev => [...prev, { id: Date.now(), ...form, created_at: new Date().toISOString() }]);
     setDialogOpen(false);
   };
   const handleDelete = (id: number) => setData(prev => prev.filter(a => a.id !== id));
+
+  if (loading) return <Loader2 className="animate-spin" />;
 
   return (
     <div className="space-y-4">
@@ -37,6 +47,12 @@ const AnnouncementsPage: React.FC = () => {
         {canEdit && <Button onClick={openCreate}><Plus className="w-4 h-4 ml-1" /> إعلان جديد</Button>}
       </div>
 
+      {data.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+          <Inbox className="w-10 h-10" />
+          <p className="text-sm">لا توجد إعلانات متاحة حالياً</p>
+        </div>
+      ) : (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {data.map(a => (
           <Card key={a.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
@@ -52,11 +68,14 @@ const AnnouncementsPage: React.FC = () => {
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Calendar className="w-3.5 h-3.5" />
                 {new Date(a.created_at).toLocaleDateString('ar-SY')}
+                {' - '}
+                {new Date(a.created_at).toLocaleTimeString('ar-SY', { hour: '2-digit', minute: '2-digit' })}
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent dir="rtl">

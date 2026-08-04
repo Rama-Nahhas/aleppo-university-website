@@ -14,6 +14,7 @@ export interface UserData {
   hospital_department_id: number | null;
   directorate_id: number | null;
   name: string;
+  nameEn?: string;
   email: string;
   is_active: number;
   student_number: string | null;
@@ -22,6 +23,7 @@ export interface UserData {
   address: string | null;
   created_at: string;
   updated_at: string;
+  role?: { id: number; name: string; label?: string } | null;
 }
 
 interface LaravelErrorResponse {
@@ -91,7 +93,7 @@ export const useAuthActions = () => {
   };
   const handleRegisterDoctor = async (
     formData: Record<string, string>,
-    onSuccess: (user: UserData) => void,
+    onSuccess: (result: { message: string; email: string }) => void,
   ): Promise<void> => {
     setIsSubmitting(true);
     setError(null);
@@ -109,8 +111,8 @@ export const useAuthActions = () => {
         role: "doctor",
       };
 
-      const user = await registerDoctor(payload);
-      onSuccess(user);
+      const result = await registerDoctor(payload);
+      onSuccess(result);
     } catch (err: unknown) {
       const axiosError = err as AxiosError<LaravelErrorResponse>;
       setError(

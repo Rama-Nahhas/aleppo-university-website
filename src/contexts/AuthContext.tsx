@@ -9,6 +9,11 @@ interface AuthResponse {
   user: UserData | UserData[];
 }
 
+interface DoctorRegisterResponse {
+  message: string;
+  email: string;
+}
+
 const normalizeUser = (user: UserData | UserData[]): UserData =>
   Array.isArray(user) ? user[0] : user;
 
@@ -42,7 +47,7 @@ interface AuthContextType {
   token: string | null;
   login: (email: string, password: string) => Promise<UserData>;
   registerStudent: (data: RegisterStudentData) => Promise<UserData>;
-  registerDoctor: (data: RegisterDoctorData) => Promise<UserData>;
+  registerDoctor: (data: RegisterDoctorData) => Promise<DoctorRegisterResponse>;
   logout: () => Promise<void>;
   loading: boolean;
 }
@@ -52,7 +57,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const getStoredUser = (): UserData | null => {
   const stored =
     localStorage.getItem("user") || sessionStorage.getItem("user");
-  return stored ? JSON.parse(stored) : null;
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch {
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
+    return null;
+  }
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -85,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           const response = await apiClient.get<UserData | UserData[]>("/user");
           const fetchedUser = normalizeUser(response.data);
           setUser(fetchedUser);
-          localStorage.setItem("user", JSON.stringify(fetchedUser));
+          localStorage.setItem("user", JSON.stringify(fetchedUser ?? null));
         } catch (error) {
           if (
             error.response &&
@@ -109,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const userData = normalizeUser(response.data.user);
 
     localStorage.setItem("token", access_token);
-    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(userData ?? null));
     setToken(access_token);
     setUser(userData);
 
@@ -127,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const userData = normalizeUser(response.data.user);
 
     sessionStorage.setItem("token", access_token);
-    sessionStorage.setItem("user", JSON.stringify(userData));
+    sessionStorage.setItem("user", JSON.stringify(userData ?? null));
     setToken(access_token);
     setUser(userData);
 
@@ -135,20 +147,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
   const registerDoctor = async (
     data: RegisterDoctorData,
-  ): Promise<UserData> => {
-    const response = await apiClient.post<AuthResponse>(
+  ): Promise<DoctorRegisterResponse> => {
+    const response = await apiClient.post<DoctorRegisterResponse>(
       "/register-doctor",
       data,
     );
-    const { access_token } = response.data;
-    const userData = normalizeUser(response.data.user);
 
-    sessionStorage.setItem("token", access_token);
-    sessionStorage.setItem("user", JSON.stringify(userData));
-    setToken(access_token);
-    setUser(userData);
-
-    return userData;
+    return response.data;
   };
 
   return (

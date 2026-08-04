@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { InputOTP } from "@/components/ui/input-otp";
 import { Mail, ArrowLeft, RefreshCcw } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePasswordResetActions } from "@/hooks/usePasswordResetActions";
 
 const RESEND_SECONDS = 60;
 
@@ -13,16 +14,15 @@ const DoctorOtpVerificationPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { lang, toggleLang } = useLanguage();
+  const { verifyOtp, resendOtp, loading } = usePasswordResetActions();
   const [otpCode, setOtpCode] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
 
-  const emailMessage = useMemo(() => {
-    const email = (location.state as { email?: string } | null)?.email;
-    return email ? `${email}` : lang === "ar" ? "بريدك الإلكتروني أو رقم هاتفك" : "your email or phone";
-  }, [lang, location.state]);
+  const email = (location.state as { email?: string } | null)?.email ?? "";
+  const emailMessage =
+    email || (lang === "ar" ? "بريدك الإلكتروني أو رقم هاتفك" : "your email or phone");
 
   useEffect(() => {
     if (!isResendDisabled) return;
@@ -50,19 +50,29 @@ const DoctorOtpVerificationPage: React.FC = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setIsSubmitting(false);
-    navigate("/register/doctor/under-review", {
-      state: { fromOtp: true },
-    });
+    const ok = await verifyOtp(email, otpCode);
+    if (ok) {
+      navigate("/register/doctor/under-review", {
+        state: { fromOtp: true },
+      });
+    } else {
+      setError(
+        lang === "ar" ? "رمز التحقق غير صحيح" : "Invalid verification code",
+      );
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     setError(null);
-    setIsResendDisabled(true);
-    setSeconds(RESEND_SECONDS);
-    // هنا يمكن إضافة منطق إعادة إرسال الكود إلى السيرفر حسب الحاجة
+    const ok = await resendOtp(email);
+    if (ok) {
+      setIsResendDisabled(true);
+      setSeconds(RESEND_SECONDS);
+    } else {
+      setError(
+        lang === "ar" ? "حدث خطأ، حاول مجدداً" : "Something went wrong, try again",
+      );
+    }
   };
 
   return (
@@ -147,9 +157,9 @@ const DoctorOtpVerificationPage: React.FC = () => {
               <Button
                 className="w-full h-12 text-base font-semibold"
                 onClick={handleVerify}
-                disabled={isSubmitting}
+                disabled={loading}
               >
-                {isSubmitting
+                {loading
                   ? lang === "ar"
                     ? "جاري التحقق..."
                     : "Verifying..."

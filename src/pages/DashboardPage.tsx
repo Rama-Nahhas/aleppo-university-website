@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { users, colleges, departments, courses, laboratories, supplies, orders, announcements, enrollments, appointments } from '@/data/mockData';
-import { Users, Building2, BookOpen, FlaskConical, Package, ClipboardList, Megaphone, TrendingUp, Calendar, Stethoscope } from 'lucide-react';
+import { users, colleges, departments, courses, laboratories, supplies, orders, appointments } from '@/data/mockData';
+import { Users, Building2, BookOpen, FlaskConical, Package, ClipboardList, Megaphone, TrendingUp, Calendar, Stethoscope, Mail, GraduationCap, UserCheck, IdCard } from 'lucide-react';
+import { Announcement, useAnnouncementActions } from '@/hooks/useAnnouncementActions';
+import { resolveRoleName } from '@/lib/roleUtils';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { lang, t } = useLanguage();
-  const role = user?.role?.name;
+  const role = resolveRoleName(user as any);
+  const { fetchAnnouncements } = useAnnouncementActions();
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
+  useEffect(() => {
+    const loadAnnouncements = async () => {
+      setAnnouncements(await fetchAnnouncements());
+    };
+    loadAnnouncements();
+  }, []);
 
   const adminStats = [
     { label: t('dash.users'), value: users.length, icon: Users, color: 'bg-primary' },
@@ -22,8 +33,10 @@ const DashboardPage: React.FC = () => {
   ];
 
   const studentStats = [
-    { label: t('dash.courses'), value: enrollments.filter(e => e.student_id === user?.id).length, icon: BookOpen, color: 'bg-primary' },
-    { label: t('dash.announcements'), value: announcements.length, icon: Megaphone, color: 'bg-amber-500' },
+    { label: lang === 'ar' ? 'البريد الإلكتروني' : 'Email', value: user?.email ?? '-', icon: Mail, color: 'bg-primary' },
+    { label: lang === 'ar' ? 'نوع القبول' : 'Admission Type', value: user?.admission_type ?? '-', icon: GraduationCap, color: 'bg-emerald-500' },
+    { label: lang === 'ar' ? 'الدور' : 'Role', value: user?.role?.name ?? '-', icon: UserCheck, color: 'bg-violet-500' },
+    { label: lang === 'ar' ? 'الرقم الجامعي' : 'Student Number', value: user?.student_number ?? '-', icon: IdCard, color: 'bg-amber-500' },
   ];
 
   const doctorStats = [
@@ -47,7 +60,7 @@ const DashboardPage: React.FC = () => {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">{t('dash.welcome')}، {lang === 'ar' ? user?.name : user?.nameEn || user?.name}</h1>
-          <p className="text-muted-foreground">{user?.role?.label}</p>
+          <p className="text-muted-foreground">{user?.role?.label ?? user?.role?.name}</p>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <TrendingUp className="w-4 h-4" />
@@ -63,8 +76,8 @@ const DashboardPage: React.FC = () => {
                 <stat.icon className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
+                <p className="text-sm font-bold text-foreground">{stat.label}</p>
+                <p className="text-sm text-muted-foreground">{stat.value}</p>
               </div>
             </CardContent>
           </Card>
@@ -79,13 +92,18 @@ const DashboardPage: React.FC = () => {
               {lang === 'ar' ? 'آخر الإعلانات' : 'Latest Announcements'}
             </h2>
             <div className="space-y-3">
-              {announcements.slice(0, 3).map(a => (
+              {announcements.slice(0, 2).map(a => (
                 <div key={a.id} className="p-3 bg-muted/50 rounded-lg">
-                  <p className="font-semibold text-sm">{lang === 'ar' ? a.title : a.titleEn}</p>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{lang === 'ar' ? a.content : a.contentEn}</p>
+                  <p className="font-semibold text-sm">{a.title}</p>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{a.content}</p>
                   <p className="text-xs text-muted-foreground mt-1">{new Date(a.created_at).toLocaleDateString(lang === 'ar' ? 'ar-SY' : 'en-US')}</p>
                 </div>
               ))}
+              {announcements.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  {lang === 'ar' ? 'لا توجد إعلانات متاحة حالياً' : 'No announcements available yet'}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

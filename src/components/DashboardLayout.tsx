@@ -10,6 +10,15 @@ import {
 import { cn } from '@/lib/utils';
 import { resolveRoleName } from '@/lib/roleUtils';
 import type { RoleName } from '@/types';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface NavItem {
   to: string;
@@ -55,6 +64,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const { lang, t, toggleLang } = useLanguage();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = React.useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = React.useState(false);
 
   const roleName = resolveRoleName(user as any) as RoleName | undefined;
 
@@ -65,6 +75,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   });
 
   const handleLogout = async () => {
+    setLogoutDialogOpen(false);
     await logout();
     navigate('/login');
   };
@@ -116,14 +127,14 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           {!collapsed && user && (
             <div className="px-2 py-1">
               <p className="text-sm font-semibold truncate">{lang === 'ar' ? user.name : user.nameEn || user.name}</p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">{user.role?.label}</p>
+              <p className="text-xs text-sidebar-foreground/60 truncate">{user.role?.label ?? user.role?.name}</p>
             </div>
           )}
           <Link to="/dashboard/change-password" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
             <Key className="w-5 h-5 flex-shrink-0" />
             {!collapsed && <span>{lang === 'ar' ? 'تغيير كلمة المرور' : 'Change Password'}</span>}
           </Link>
-          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full text-sidebar-foreground/70 hover:bg-destructive/20 hover:text-destructive transition-colors">
+          <button onClick={() => setLogoutDialogOpen(true)} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full text-sidebar-foreground/70 hover:bg-destructive/20 hover:text-destructive transition-colors">
             <LogOut className="w-5 h-5 flex-shrink-0" />
             {!collapsed && <span>{t('nav.logout')}</span>}
           </button>
@@ -133,6 +144,27 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       <main className="flex-1 overflow-auto bg-background">
         <div className="p-6 max-w-7xl mx-auto">{children}</div>
       </main>
+
+      <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <DialogContent dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+          <DialogHeader>
+            <DialogTitle>{lang === 'ar' ? 'تأكيد تسجيل الخروج' : 'Confirm Logout'}</DialogTitle>
+            <DialogDescription>
+              {lang === 'ar'
+                ? 'هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟'
+                : 'Are you sure you want to log out of your account?'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLogoutDialogOpen(false)}>
+              {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+            </Button>
+            <Button variant="destructive" onClick={handleLogout}>
+              {lang === 'ar' ? 'تسجيل الخروج' : 'Log out'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

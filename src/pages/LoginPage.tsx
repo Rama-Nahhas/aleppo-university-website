@@ -159,6 +159,12 @@ const LoginPage: React.FC = () => {
                   {errors.password.message}
                 </p>
               )}
+              <Link
+                to="/forgot-password"
+                className="block text-xs text-destructive font-medium hover:underline"
+              >
+                {lang === "ar" ? "هل نسيت كلمة المرور؟" : "Forgot password?"}
+              </Link>
             </div>
 
             <Button

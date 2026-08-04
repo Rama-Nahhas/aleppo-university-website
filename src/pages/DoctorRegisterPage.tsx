@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, GraduationCap, Eye, EyeOff, Globe } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
-import { useAuthActions, UserData } from "@/hooks/useAuthActions";
+import { useAuthActions } from "@/hooks/useAuthActions";
 
 export interface DoctorRegisterFormData {
   name: string;
@@ -59,21 +59,18 @@ const DoctorRegisterPage: React.FC = () => {
 
     await handleRegisterDoctor(
       payload as unknown as Record<string, string>,
-      (userData: UserData) => {
+      (result) => {
         toast({
           title:
             lang === "ar"
               ? "تم إنشاء حساب الطبيب بنجاح"
               : "Doctor Account Created",
-          description:
-            lang === "ar"
-              ? `مرحباً د. ${userData.name}`
-              : `Welcome Dr. ${userData.name}`,
+          description: result.message,
           className: "bg-green-600 text-white font-semibold",
         });
 
         navigate("/register/doctor/verify", {
-          state: { email: values.email },
+          state: { email: result.email },
         });
       },
     );

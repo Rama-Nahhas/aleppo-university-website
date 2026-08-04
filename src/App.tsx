@@ -134,6 +134,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import PublicLayout from "@/components/public/PublicLayout";
 import LoginPage from "@/pages/LoginPage";
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import RegisterChoicePage from "@/pages/RegisterChoicePage";
 import RegisterPage from "@/pages/StudentRegisterPage";
 import DoctorRegisterPage from "@/pages/DoctorRegisterPage";
@@ -225,6 +226,14 @@ const AppRoutes = () => (
       element={
         <PublicRoute>
           <LoginPage />
+        </PublicRoute>
+      }
+    />
+    <Route
+      path="/forgot-password"
+      element={
+        <PublicRoute>
+          <ForgotPasswordPage />
         </PublicRoute>
       }
     />

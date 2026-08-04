@@ -21,12 +21,13 @@ export const useSubjectActions = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStudentSubjects = async () => {
+  const fetchStudentSubjects = async (yearId?: number) => {
     setLoading(true);
     setError(null);
     try {
       const response = await apiClient.get<StudentSubjectsResponse>(
         "/student/subjects",
+        { params: yearId ? { year_id: yearId } : undefined },
       );
       return response.data.subjects;
     } catch (err) {
