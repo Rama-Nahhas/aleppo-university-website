@@ -48,9 +48,16 @@ const ExamDashboardPage: React.FC = () => {
       <div className="space-y-3">
         <h2 className="text-lg font-bold">العمليات السريعة</h2>
         <div className="flex gap-2 flex-wrap">
-          <button onClick={() => navigate('/dashboard/exam-employee/subjects')} className="btn btn-primary">عرض المواد</button>
-          <button onClick={() => navigate('/dashboard/exam-employee/enter-grades')} className="btn btn-secondary">إدخال العلامات</button>
-          <button onClick={() => navigate('/dashboard/exam-employee/promoted')} className="btn btn-accent">عرض الطلاب المترفعين</button>
+          <button type="button" onClick={() => navigate('/dashboard/exam-employee/subjects')} className="btn btn-primary">عرض المواد</button>
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard/exam-employee/enter-grades', { state: { subjectId: subjects[0]?.id } })}
+            className="btn btn-secondary"
+            disabled={subjects.length === 0}
+          >
+            إدخال العلامات
+          </button>
+          <button type="button" onClick={() => navigate('/dashboard/exam-employee/promoted')} className="btn btn-accent">عرض الطلاب المترفعين</button>
         </div>
       </div>
 

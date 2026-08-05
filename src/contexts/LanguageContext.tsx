@@ -146,7 +146,7 @@ const translations: Record<string, Record<Lang, string>> = {
   'hospital.eye': { ar: 'مشفى جراحة الفم و الفكين', en: 'Oral and Maxillofacial Hospital' },
   'hospital.services': { ar: 'خدماتنا الطبية', en: 'Our Medical Services' },
   'hospital.bookAppointment': { ar: 'حجز موعد', en: 'Book Appointment' },
-  'hospital.doctors': { ar: 'الأطباء', en: 'Doctors' },
+  'hospital.doctors': { ar: 'الدكاترة  المدرسين', en: 'Doctors' },
   'hospital.clinics': { ar: 'العيادات', en: 'Clinics' },
 
   //Directorate

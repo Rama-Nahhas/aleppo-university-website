@@ -15,8 +15,8 @@ export const roles: Role[] = [
 
 export const colleges: College[] = [
   
-  { id: 1,years:6, name: 'كلية الطب البشري', nameEn: 'Faculty of Medicine', slug: 'medicine', description: 'من أعرق كليات الطب في سوريا، تخرّج أطباء متميزين منذ عام 1946', descriptionEn: 'One of the oldest medical schools in Syria, graduating distinguished physicians since 1946' },
-  { id: 2,years:5, name: 'كلية طب الأسنان', nameEn: 'Faculty of Dentistry', slug: 'dentistry', description: 'تخرّج أطباء أسنان مؤهلين مع مختبرات وعيادات حديثة', descriptionEn: 'Graduates qualified dentists with modern laboratories and clinics' },
+  { id: 1,years:6, name: 'كلية الطب البشري', nameEn: 'Faculty of Medicine', slug: 'medicine', description: 'من أعرق كليات الطب في سوريا، تخرّج الدكاترة المدرسين متميزين منذ عام 1946', descriptionEn: 'One of the oldest medical schools in Syria, graduating distinguished physicians since 1946' },
+  { id: 2,years:5, name: 'كلية طب الأسنان', nameEn: 'Faculty of Dentistry', slug: 'dentistry', description: 'تخرّج الدكاترة المدرسين أسنان مؤهلين مع مختبرات وعيادات حديثة', descriptionEn: 'Graduates qualified dentists with modern laboratories and clinics' },
   { id: 3,years:5, name: 'كلية الصيدلة', nameEn: 'Faculty of Pharmacy', slug: 'pharmacy', description: 'تقدم برامج متقدمة في العلوم الصيدلانية والكيمياء الدوائية', descriptionEn: 'Offers advanced programs in pharmaceutical sciences and medicinal chemistry' },
   
   { id: 4,years:5, name: 'كلية الهندسة المعلوماتية', nameEn: 'Faculty of Informatics Engineering', slug: 'informatics', description: 'تأسست عام 2001، تضم أقساماً متعددة في علوم الحاسوب والبرمجيات والشبكات', descriptionEn: 'Founded in 2001, encompasses multiple departments in computer science, software engineering, and networks' },
@@ -260,7 +260,7 @@ export const doctorRequests = [
     employment_year: 2020,
     requested_at: '2026-04-10T09:00:00Z',
     status: 'pending',
-    details: 'طبيب اختصاص أطفال مع خبرة سريرية واسعة.'
+    details: 'دكتور اختصاص أطفال مع خبرة سريرية واسعة.'
   },
   {
     id: 2,

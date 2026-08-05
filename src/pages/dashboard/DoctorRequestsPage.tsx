@@ -78,7 +78,7 @@ const DoctorRequestsPage: React.FC = () => {
     setActingId(null);
     if (ok) {
       notifySuccess(
-        lang === "ar" ? "تم قبول الطبيب بنجاح" : "Doctor accepted successfully",
+        lang === "ar" ? "تم قبول الدكتور بنجاح" : "Doctor accepted successfully",
       );
       await loadPending();
     } else {
@@ -110,7 +110,7 @@ const DoctorRequestsPage: React.FC = () => {
     <div className="space-y-4">
       <h1 className="text-2xl font-bold flex items-center gap-2">
         <UserCheck className="w-6 h-6 text-primary" />
-        {lang === "ar" ? "طلبات الأطباء" : "Doctor Requests"}
+        {lang === "ar" ? "طلبات الدكاترة  المدرسين" : "Doctor Requests"}
       </h1>
 
       {!loaded ? (

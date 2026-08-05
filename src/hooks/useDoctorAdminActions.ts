@@ -29,7 +29,7 @@ export const useDoctorAdminActions = () => {
       );
       return response.data.data;
     } catch (err) {
-      setError("حدث خطأ أثناء جلب طلبات الأطباء.");
+      setError("حدث خطأ أثناء جلب طلبات الدكاترة  المدرسين.");
       return [];
     } finally {
       setLoading(false);
@@ -45,7 +45,7 @@ export const useDoctorAdminActions = () => {
       );
       return response.data.data;
     } catch (err) {
-      setError("حدث خطأ أثناء جلب الأطباء النشطين.");
+      setError("حدث خطأ أثناء جلب الدكاترة  المدرسين النشطين.");
       return [];
     } finally {
       setLoading(false);
@@ -69,7 +69,7 @@ export const useDoctorAdminActions = () => {
       });
       return true;
     } catch (err) {
-      setError("حدث خطأ أثناء إضافة الطبيب.");
+      setError("حدث خطأ أثناء إضافة الدكتور.");
       return false;
     } finally {
       setLoading(false);
@@ -115,7 +115,7 @@ export const useDoctorAdminActions = () => {
       await apiClient.put(`/admin/doctors/${id}`, { name, specialization });
       return true;
     } catch (err) {
-      setError("حدث خطأ أثناء تعديل الطبيب.");
+      setError("حدث خطأ أثناء تعديل الدكتور.");
       return false;
     } finally {
       setLoading(false);
@@ -129,7 +129,7 @@ export const useDoctorAdminActions = () => {
       await apiClient.post(`/admin/doctors/${id}/block`, { reason });
       return true;
     } catch (err) {
-      setError("حدث خطأ أثناء حظر الطبيب.");
+      setError("حدث خطأ أثناء حظر الدكتور.");
       return false;
     } finally {
       setLoading(false);

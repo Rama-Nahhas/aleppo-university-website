@@ -23,10 +23,20 @@ type StudentState = {
 const EnterGradesPage: React.FC = ()=>{
   const { state } = useLocation();
   const { subjects, getSubjectById, getSubjectStudentsResponse, MOCK_PASSING_MARK, updateStudentMark, setSelectedSubjectId } = useExam();
-  const subjectId = state?.subjectId ?? (subjects[0]?.id ?? null);
-  const subject = subjectId ? getSubjectById(Number(subjectId)) : undefined;
-  const resp = subjectId ? getSubjectStudentsResponse(Number(subjectId)) : { subject: { id: 0, name: '' , year_id:0 }, new_students: [], failed_students: [] };
+  const selectedSubjectId = state?.subjectId ?? subjects[0]?.id ?? null;
+  const subjectId = selectedSubjectId ? Number(selectedSubjectId) : null;
+  const subject = subjectId ? getSubjectById(subjectId) : undefined;
+  const resp = subjectId
+    ? getSubjectStudentsResponse(subjectId)
+    : { subject: { id: 0, name: '', year_id: 0 }, new_students: [], failed_students: [] };
   const rawStudents = resp.new_students.concat(resp.failed_students);
+  const subjectStats = subjectId ? subjects.find(s => s.id === subjectId) : undefined;
+  const studentsCount = rawStudents.length;
+  const enteredCount = rawStudents.filter(s => s.mark != null).length;
+  const completionPercent = studentsCount ? Math.round((enteredCount / studentsCount) * 100) : 0;
+  const subjectLabel = subjectStats?.name ?? subject?.name ?? 'غير معروف';
+  const subjectDept = subjectStats?.department ?? subject?.department_id ?? '-';
+  const subjectYear = subjectStats?.year ?? subject?.year?.name ?? 'غير معروف';
   const { lang } = useLanguage();
 
   const [students, setStudents] = useState<StudentState[]>(rawStudents.map(s=>({ student_id: s.student_id, name: s.name, mark: s.mark, status: s.mark==null? 'غير مدخلة':'محفوظ', prev: s.mark })));
@@ -99,14 +109,25 @@ const EnterGradesPage: React.FC = ()=>{
     setPendingEdit(null);
   };
 
+  if (!subjectId) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">إدخال العلامات</h1>
+        <div className="p-4 bg-card rounded-lg">
+          <p>لا توجد مادة متاحة للعرض.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">إدخال العلامات</h1>
       <div className="p-4 bg-card rounded-lg">
-        <p>المادة: <strong>{subject.name}</strong></p>
-        <p>القسم: {subject.department} - السنة: {subject.year}</p>
-        <p>عدد الطلاب: {subject.studentsCount} - المدخلة: {subject.enteredCount} - غير المدخلة: {subject.studentsCount - subject.enteredCount}</p>
-        <p>نسبة الإنجاز: {Math.round((subject.enteredCount/subject.studentsCount)*100)}%</p>
+        <p>المادة: <strong>{subjectLabel}</strong></p>
+        <p>القسم: {subjectDept} - السنة: {subjectYear}</p>
+        <p>عدد الطلاب: {studentsCount} - المدخلة: {enteredCount} - غير المدخلة: {studentsCount - enteredCount}</p>
+        <p>نسبة الإنجاز: {completionPercent}%</p>
       </div>
 
       <div className="flex gap-2">

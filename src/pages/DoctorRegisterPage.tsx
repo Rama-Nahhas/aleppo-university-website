@@ -63,7 +63,7 @@ const DoctorRegisterPage: React.FC = () => {
         toast({
           title:
             lang === "ar"
-              ? "تم إنشاء حساب الطبيب بنجاح"
+              ? "تم إنشاء حساب الدكتور بنجاح"
               : "Doctor Account Created",
           description: result.message,
           className: "bg-green-600 text-white font-semibold",
@@ -112,7 +112,7 @@ const DoctorRegisterPage: React.FC = () => {
             </div>
           </Link>
           <CardTitle className="text-2xl font-bold">
-            {lang === "ar" ? "تسجيل طبيب" : "Doctor Registration"}
+            {lang === "ar" ? "تسجيل دكتور" : "Doctor Registration"}
           </CardTitle>
           <CardDescription className="text-base">
             {lang === "ar"

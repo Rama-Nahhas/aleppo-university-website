@@ -80,10 +80,10 @@ const ActiveDoctorsPage: React.FC = () => {
     setSaving(false);
     if (ok) {
       setDialogOpen(false);
-      notifySuccess(lang === 'ar' ? 'تم إضافة الطبيب بنجاح' : 'Doctor added successfully');
+      notifySuccess(lang === 'ar' ? 'تم إضافة الدكتور بنجاح' : 'Doctor added successfully');
       await loadDoctors();
     } else {
-      notifyError(lang === 'ar' ? 'حدث خطأ أثناء إضافة الطبيب' : 'Failed to add doctor');
+      notifyError(lang === 'ar' ? 'حدث خطأ أثناء إضافة الدكتور' : 'Failed to add doctor');
     }
   };
 
@@ -99,10 +99,10 @@ const ActiveDoctorsPage: React.FC = () => {
     setEditSaving(false);
     if (ok) {
       setEditTarget(null);
-      notifySuccess(lang === 'ar' ? 'تم تعديل بيانات الطبيب بنجاح' : 'Doctor updated successfully');
+      notifySuccess(lang === 'ar' ? 'تم تعديل بيانات الدكتور بنجاح' : 'Doctor updated successfully');
       await loadDoctors();
     } else {
-      notifyError(lang === 'ar' ? 'حدث خطأ أثناء تعديل الطبيب' : 'Failed to update doctor');
+      notifyError(lang === 'ar' ? 'حدث خطأ أثناء تعديل الدكتور' : 'Failed to update doctor');
     }
   };
 
@@ -114,10 +114,10 @@ const ActiveDoctorsPage: React.FC = () => {
     if (ok) {
       setBlockTarget(null);
       setBlockReason('');
-      notifySuccess(lang === 'ar' ? 'تم حظر الطبيب بنجاح' : 'Doctor blocked successfully');
+      notifySuccess(lang === 'ar' ? 'تم حظر الدكتور بنجاح' : 'Doctor blocked successfully');
       await loadDoctors();
     } else {
-      notifyError(lang === 'ar' ? 'حدث خطأ أثناء حظر الطبيب' : 'Failed to block doctor');
+      notifyError(lang === 'ar' ? 'حدث خطأ أثناء حظر الدكتور' : 'Failed to block doctor');
     }
   };
 
@@ -140,11 +140,11 @@ const ActiveDoctorsPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <UserCog className="w-6 h-6 text-primary" />
-          {lang === 'ar' ? 'الأطباء النشطون' : 'Active Doctors'}
+          {lang === 'ar' ? 'الدكاترة  المدرسين النشطون' : 'Active Doctors'}
         </h1>
         <Button onClick={openAdd}>
           <Plus className="w-4 h-4 ml-1" />
-          {lang === 'ar' ? 'إضافة طبيب' : 'Add Doctor'}
+          {lang === 'ar' ? 'إضافة دكتور' : 'Add Doctor'}
         </Button>
       </div>
 
@@ -158,7 +158,7 @@ const ActiveDoctorsPage: React.FC = () => {
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
           <Inbox className="w-10 h-10" />
-          <p className="text-sm">{lang === 'ar' ? 'لا يوجد أطباء نشطون حالياً' : 'No active doctors'}</p>
+          <p className="text-sm">{lang === 'ar' ? 'لا يوجد الدكاترة المدرسين نشطون حالياً' : 'No active doctors'}</p>
         </div>
       ) : (
         <Card className="border-0 shadow-sm"><CardContent className="p-0">
@@ -198,7 +198,7 @@ const ActiveDoctorsPage: React.FC = () => {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-          <DialogHeader><DialogTitle>{lang === 'ar' ? 'إضافة طبيب' : 'Add Doctor'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{lang === 'ar' ? 'إضافة دكتور' : 'Add Doctor'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div>
               <Label>{lang === 'ar' ? 'الاسم' : 'Name'}</Label>
@@ -229,7 +229,7 @@ const ActiveDoctorsPage: React.FC = () => {
       {/* Edit dialog */}
       <Dialog open={!!editTarget} onOpenChange={(open) => !open && setEditTarget(null)}>
         <DialogContent dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-          <DialogHeader><DialogTitle>{lang === 'ar' ? 'تعديل الطبيب' : 'Edit Doctor'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{lang === 'ar' ? 'تعديل الدكتور' : 'Edit Doctor'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div>
               <Label>{lang === 'ar' ? 'الاسم' : 'Name'}</Label>
@@ -253,7 +253,7 @@ const ActiveDoctorsPage: React.FC = () => {
       <Dialog open={!!blockTarget} onOpenChange={(open) => !open && setBlockTarget(null)}>
         <DialogContent dir={lang === 'ar' ? 'rtl' : 'ltr'}>
           <DialogHeader>
-            <DialogTitle>{lang === 'ar' ? 'حظر الطبيب' : 'Block Doctor'}</DialogTitle>
+            <DialogTitle>{lang === 'ar' ? 'حظر الدكتور' : 'Block Doctor'}</DialogTitle>
             <DialogDescription>
               {lang === 'ar'
                 ? `أدخل سبب حظر "${blockTarget?.name}"`

@@ -49,6 +49,9 @@ export const resolveRoleName = (user: RoleLikeUser | null | undefined): RoleName
       'lab-technician': 'lab_technician',
       'warehouse_manager': 'warehouse_manager',
       'employee': 'employee',
+      'exam_employee': 'exam_employee',
+      'exam-employee': 'exam_employee',
+      'examemployee': 'exam_employee',
       'university_admin': 'university_admin',
     };
 

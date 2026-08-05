@@ -28,7 +28,7 @@ const PatientsPage: React.FC = () => {
                 </div>
                 <p className="text-sm"><span className="font-semibold text-primary">{lang === 'ar' ? 'التشخيص: ' : 'Diagnosis: '}</span>{lang === 'ar' ? r.diagnosis : r.diagnosisEn}</p>
                 <p className="text-sm mt-1"><span className="font-semibold text-primary">{lang === 'ar' ? 'العلاج: ' : 'Treatment: '}</span>{lang === 'ar' ? r.treatment : r.treatmentEn}</p>
-                <p className="text-xs text-muted-foreground mt-2">{lang === 'ar' ? 'الطبيب: ' : 'Doctor: '}{lang === 'ar' ? doctor?.name : doctor?.nameEn}</p>
+                <p className="text-xs text-muted-foreground mt-2">{lang === 'ar' ? 'الدكتور: ' : 'Doctor: '}{lang === 'ar' ? doctor?.name : doctor?.nameEn}</p>
               </CardContent>
             </Card>
           );

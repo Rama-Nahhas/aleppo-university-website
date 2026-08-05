@@ -117,7 +117,7 @@ export const useAuthActions = () => {
       const axiosError = err as AxiosError<LaravelErrorResponse>;
       setError(
         axiosError.response?.data?.message ||
-          "حدث خطأ أثناء إنشاء حساب الطبيب. يرجى المحاولة مجدداً.",
+          "حدث خطأ أثناء إنشاء حساب الدكتور. يرجى المحاولة مجدداً.",
       );
     } finally {
       setIsSubmitting(false);

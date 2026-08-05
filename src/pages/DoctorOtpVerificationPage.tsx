@@ -90,7 +90,7 @@ const DoctorOtpVerificationPage: React.FC = () => {
           className="inline-flex items-center gap-1 text-sm opacity-70 hover:opacity-100"
         >
           <ArrowLeft className="w-4 h-4" />
-          {lang === "ar" ? "الرجوع إلى تسجيل الطبيب" : "Back to Doctor Registration"}
+          {lang === "ar" ? "الرجوع إلى تسجيل الدكتور" : "Back to Doctor Registration"}
         </Link>
       </div>
 

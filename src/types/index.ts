@@ -1,4 +1,4 @@
-export type RoleName =   'admin'| 'dean'| 'academic_doctor'| 'lab_technician'| 'warehouse_manager' | 'student'| 'nurse'| 'employee'  | 'medical_doctor' | 'university_admin'  ;
+export type RoleName =   'admin'| 'dean'| 'academic_doctor'| 'lab_technician'| 'warehouse_manager' | 'student'| 'nurse'| 'employee'  | 'medical_doctor' | 'university_admin' | 'exam_employee' ;
 
 export interface Role {
   id: number;

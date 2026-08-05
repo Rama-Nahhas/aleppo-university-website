@@ -21,7 +21,7 @@ const UsersManagementOverview: React.FC = () => {
           <CardContent className="p-4 flex items-center gap-4">
             <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white"><Stethoscope className="w-5 h-5" /></div>
             <div>
-              <p className="font-bold">طلبات الأطباء</p>
+              <p className="font-bold">طلبات الدكاترة  المدرسين</p>
               <p className="text-sm text-muted-foreground">{doctorRequests.length} طلب</p>
             </div>
           </CardContent>
@@ -31,8 +31,8 @@ const UsersManagementOverview: React.FC = () => {
           <CardContent className="p-4 flex items-center gap-4">
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white"><Users className="w-5 h-5" /></div>
             <div>
-              <p className="font-bold">الأطباء النشطون</p>
-              <p className="text-sm text-muted-foreground">{users.filter(u => [3,9].includes(u.role_id)).length} طبيب</p>
+              <p className="font-bold">الدكاترة  المدرسين النشطون</p>
+              <p className="text-sm text-muted-foreground">{users.filter(u => [3,9].includes(u.role_id)).length} دكتور</p>
             </div>
           </CardContent>
         </Card>

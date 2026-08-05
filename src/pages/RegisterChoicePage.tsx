@@ -32,7 +32,7 @@ const RegisterChoicePage: React.FC = () => {
                 <Stethoscope className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-semibold">دكتور</h3>
-              <p className="mt-2 text-sm text-muted-foreground">إنشاء حساب طبيب أو أستاذ جامعي</p>
+              <p className="mt-2 text-sm text-muted-foreground">إنشاء حساب دكتور أو أستاذ جامعي</p>
 
             </div>
           </Link>

@@ -34,7 +34,7 @@ const AppointmentsPage: React.FC = () => {
                   <div>
                     <h3 className="font-bold text-foreground text-sm">{lang === 'ar' ? patient?.name : patient?.nameEn}</h3>
                     <p className="text-xs text-muted-foreground">{lang === 'ar' ? clinic?.name : clinic?.nameEn}</p>
-                    <p className="text-xs text-muted-foreground">{lang === 'ar' ? 'الطبيب: ' : 'Doctor: '}{lang === 'ar' ? doctor?.name : doctor?.nameEn}</p>
+                    <p className="text-xs text-muted-foreground">{lang === 'ar' ? 'الدكتور: ' : 'Doctor: '}{lang === 'ar' ? doctor?.name : doctor?.nameEn}</p>
                   </div>
                 </div>
                 <div className="text-end">
