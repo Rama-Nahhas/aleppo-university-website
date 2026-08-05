@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
@@ -35,7 +35,7 @@ const allNavItems: NavItem[] = [
   { to: '/dashboard/departments', icon: Building2, labelAr: 'الأقسام', labelEn: 'Departments', roles: ['admin', 'university_admin'] },
   { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['admin', 'university_admin', 'academic_doctor'] },
   { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'medical_doctor'] },
-  { to: '/dashboard/laboratories', icon: FlaskConical, labelAr: 'المخابر', labelEn: 'Laboratories', roles: ['lab_technician', 'dean'] },
+  { to: '/dashboard/laboratories', icon: FlaskConical, labelAr: 'إدارة المخابر', labelEn: 'Laboratories', roles: ['lab_technician', 'dean', 'admin', 'university_admin'] },
   { to: '/dashboard/warehouses', icon: Warehouse, labelAr: 'المستودعات', labelEn: 'Warehouses', roles: [ 'warehouse_manager'] },
   { to: '/dashboard/orders', icon: ClipboardList, labelAr: 'الطلبات', labelEn: 'Orders', roles: [ 'warehouse_manager', 'lab_technician'] },
   { to: '/dashboard/hospital', icon: Hospital, labelAr: 'المستشفى', labelEn: 'Hospital', roles: [ 'medical_doctor', 'nurse'] },
@@ -72,6 +72,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return roleName ? item.roles.includes(roleName) : false;
   });
 
+  const location = useLocation();
+  const [usersMenuOpen, setUsersMenuOpen] = React.useState<boolean>(location.pathname.startsWith('/dashboard/users'));
+  React.useEffect(() => {
+    setUsersMenuOpen(location.pathname.startsWith('/dashboard/users'));
+  }, [location.pathname]);
+
   const handleLogout = async () => {
     setLogoutDialogOpen(false);
     await logout();
@@ -101,6 +107,38 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         </button>
 
         <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
+          {/* Users management collapsible menu */}
+          {(!collapsed && ['admin','university_admin','employee'].includes(roleName || '')) && (
+            <div>
+              <button
+                onClick={() => setUsersMenuOpen(v => !v)}
+                className={cn("w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors", usersMenuOpen ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}
+              >
+                <div className="flex items-center gap-3">
+                  <Users className="w-5 h-5 flex-shrink-0" />
+                  <span className="truncate">{lang === 'ar' ? 'إدارة المستخدمين' : 'Manage Users'}</span>
+                </div>
+                <span className="text-xs opacity-70">{usersMenuOpen ? '▾' : '▸'}</span>
+              </button>
+              {usersMenuOpen && (
+                <div className="mt-1 space-y-1 pr-2">
+                  <NavLink to="/dashboard/users/doctor-requests" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm", isActive ? "bg-sidebar-accent/40 text-sidebar-primary-foreground" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>{/* rtl handled by parent */}
+                    <span className="mr-1">طلبات الأطباء</span>
+                  </NavLink>
+                  <NavLink to="/dashboard/users/active-doctors" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm", isActive ? "bg-sidebar-accent/40 text-sidebar-primary-foreground" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                    <span className="mr-1">الأطباء النشطون</span>
+                  </NavLink>
+                  <NavLink to="/dashboard/users/students" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm", isActive ? "bg-sidebar-accent/40 text-sidebar-primary-foreground" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                    <span className="mr-1">الطلاب</span>
+                  </NavLink>
+                  <NavLink to="/dashboard/users/others" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm", isActive ? "bg-sidebar-accent/40 text-sidebar-primary-foreground" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                    <span className="mr-1">المستخدمون الآخرون</span>
+                  </NavLink>
+                </div>
+              )}
+            </div>
+          )}
+
           {navItems.map(item => (
             <NavLink
               key={item.to}

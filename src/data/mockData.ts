@@ -249,6 +249,45 @@ export const announcements: Announcement[] = [
   { id: 5, title: 'مؤتمر طبي دولي', titleEn: 'International Medical Conference', content: 'تستضيف كلية الطب مؤتمراً طبياً دولياً بمشاركة أكثر من 200 باحث', contentEn: 'The Faculty of Medicine hosts an international medical conference with over 200 researchers', created_by: 1, created_at: '2026-04-10T09:00:00Z' },
 ];
 
+export const doctorRequests = [
+  {
+    id: 1,
+    name: 'د. ليلى حسن',
+    email: 'leila.hassan@aleppo.edu',
+    specialty: 'أطفال',
+    university: 'جامعة دمشق',
+    grad_year: 2018,
+    employment_year: 2020,
+    requested_at: '2026-04-10T09:00:00Z',
+    status: 'pending',
+    details: 'طبيب اختصاص أطفال مع خبرة سريرية واسعة.'
+  },
+  {
+    id: 2,
+    name: 'د. كريم راشد',
+    email: 'karim.rashid@aleppo.edu',
+    specialty: 'باطنة',
+    university: 'جامعة حلب',
+    grad_year: 2015,
+    employment_year: 2017,
+    requested_at: '2026-04-08T12:30:00Z',
+    status: 'pending',
+    details: 'اختصاص باطنة، يعمل حالياً في مستشفى تدعمه.'
+  },
+  {
+    id: 3,
+    name: 'د. مها أبو زيد',
+    email: 'maha.abouzeid@aleppo.edu',
+    specialty: 'جراحة',
+    university: 'جامعة حلب',
+    grad_year: 2012,
+    employment_year: 2014,
+    requested_at: '2026-03-30T15:20:00Z',
+    status: 'under_review',
+    details: 'تجربة جراحية واسعة مع نشرات بحثية.'
+  }
+];
+
 export const newsEvents = [
   { id: 1, title: 'حفل تخرج الدفعة الجديدة', titleEn: 'New Batch Graduation Ceremony', date: '2026-04-20', image: '/favicon.ico', excerpt: 'تحتفل الجامعة بتخريج أكثر من 2000 طالب من مختلف الكليات', excerptEn: 'The university celebrates the graduation of over 2000 students from various colleges' },
   { id: 2, title: 'مؤتمر البحث العلمي السنوي', titleEn: 'Annual Scientific Research Conference', date: '2026-04-25', image: '/favicon.ico', excerpt: 'ينعقد المؤتمر السنوي للبحث العلمي بمشاركة باحثين من 15 دولة', excerptEn: 'The annual scientific research conference is held with researchers from 15 countries' },

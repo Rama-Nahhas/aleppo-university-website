@@ -140,6 +140,10 @@ import RegisterPage from "@/pages/StudentRegisterPage";
 import DoctorRegisterPage from "@/pages/DoctorRegisterPage";
 import DashboardPage from "@/pages/DashboardPage";
 import UsersPage from "@/pages/UsersPage";
+import UsersManagementOverview from "@/pages/dashboard/UsersManagementOverview";
+import DoctorRequestsPage from "@/pages/dashboard/DoctorRequestsPage";
+import ActiveDoctorsPage from "@/pages/dashboard/ActiveDoctorsPage";
+import OtherUsersPage from "@/pages/dashboard/OtherUsersPage";
 import CollegesPage from "@/pages/CollegesPage";
 import DepartmentsPage from "@/pages/DepartmentsPage";
 import CoursesPage from "@/pages/CoursesPage";
@@ -291,7 +295,39 @@ const AppRoutes = () => (
       path="/dashboard/users"
       element={
         <ProtectedRoute>
-          <UsersPage />
+          <UsersManagementOverview />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/dashboard/users/doctor-requests"
+      element={
+        <ProtectedRoute>
+          <DoctorRequestsPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/dashboard/users/active-doctors"
+      element={
+        <ProtectedRoute>
+          <ActiveDoctorsPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/dashboard/users/students"
+      element={
+        <ProtectedRoute>
+          <ManageStudentsPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/dashboard/users/others"
+      element={
+        <ProtectedRoute>
+          <OtherUsersPage />
         </ProtectedRoute>
       }
     />
