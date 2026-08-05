@@ -122,16 +122,16 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               </button>
               {usersMenuOpen && (
                 <div className="mt-1 space-y-1 pr-2">
-                  <NavLink to="/dashboard/users/doctor-requests" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm", isActive ? "bg-sidebar-accent/40 text-sidebar-primary-foreground" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>{/* rtl handled by parent */}
+                  <NavLink to="/dashboard/users/doctor-requests" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>{/* rtl handled by parent */}
                     <span className="mr-1">طلبات الأطباء</span>
                   </NavLink>
-                  <NavLink to="/dashboard/users/active-doctors" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm", isActive ? "bg-sidebar-accent/40 text-sidebar-primary-foreground" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                  <NavLink to="/dashboard/users/active-doctors" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
                     <span className="mr-1">الأطباء النشطون</span>
                   </NavLink>
-                  <NavLink to="/dashboard/users/students" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm", isActive ? "bg-sidebar-accent/40 text-sidebar-primary-foreground" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                  <NavLink to="/dashboard/users/students" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
                     <span className="mr-1">الطلاب</span>
                   </NavLink>
-                  <NavLink to="/dashboard/users/others" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm", isActive ? "bg-sidebar-accent/40 text-sidebar-primary-foreground" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                  <NavLink to="/dashboard/users/others" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
                     <span className="mr-1">المستخدمون الآخرون</span>
                   </NavLink>
                 </div>

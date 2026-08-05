@@ -1,102 +1,142 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { users as initialUsers, roles } from '@/data/mockData';
-import { Plus, Pencil, Trash2, Search, Users } from 'lucide-react';
-import type { User } from '@/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Trash2, Search, Users, Loader2, Inbox } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { OtherUser, useOtherUsersAdminActions } from '@/hooks/useOtherUsersAdminActions';
+import { useDoctorAdminActions } from '@/hooks/useDoctorAdminActions';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/ui/pagination-controls';
 
 const PAGE_SIZE = 10;
 
 const OtherUsersPage: React.FC = () => {
-  const others = initialUsers.filter(u => ![3,9,6].includes(u.role_id));
-  const [data, setData] = useState<User[]>(others);
+  const { lang } = useLanguage();
+  const { toast } = useToast();
+  const { fetchOtherUsers, loading } = useOtherUsersAdminActions();
+  const { deleteUser } = useDoctorAdminActions();
+
+  const [data, setData] = useState<OtherUser[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [search, setSearch] = useState('');
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<User | null>(null);
-  const [form, setForm] = useState({ name: '', email: '', role_id: '' });
+
+  const [deleteTarget, setDeleteTarget] = useState<OtherUser | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const filtered = data.filter(u => u.name.includes(search) || u.email.includes(search));
   const { page, setPage, totalPages, paginated } = usePagination(filtered, PAGE_SIZE);
 
-  const openCreate = () => { setEditing(null); setForm({ name: '', email: '', role_id: '' }); setDialogOpen(true); };
-  const openEdit = (u: User) => { setEditing(u); setForm({ name: u.name, email: u.email, role_id: String(u.role_id) }); setDialogOpen(true); };
-
-  const handleSave = () => {
-    if (editing) setData(prev => prev.map(u => u.id === editing.id ? { ...u, name: form.name, email: form.email, role_id: Number(form.role_id) } : u));
-    else setData(prev => [...prev, { id: Date.now(), name: form.name, email: form.email, role_id: Number(form.role_id), college_id: null, department_id: null } as User]);
-    setDialogOpen(false);
+  const loadUsers = async () => {
+    const result = await fetchOtherUsers();
+    setData(result);
+    setLoaded(true);
   };
 
-  const handleDelete = (id: number) => setData(prev => prev.filter(u => u.id !== id));
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const notifySuccess = (description: string) => {
+    toast({
+      title: lang === 'ar' ? 'تم بنجاح' : 'Success',
+      description,
+      className: 'bg-green-600 text-white font-semibold',
+    });
+  };
+
+  const notifyError = (description: string) => {
+    toast({
+      title: lang === 'ar' ? 'حدث خطأ' : 'Error',
+      description,
+      variant: 'destructive',
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const ok = await deleteUser(deleteTarget.id);
+    setDeleting(false);
+    if (ok) {
+      setDeleteTarget(null);
+      notifySuccess(lang === 'ar' ? 'تم حذف المستخدم بنجاح' : 'User deleted successfully');
+      await loadUsers();
+    } else {
+      notifyError(lang === 'ar' ? 'حدث خطأ أثناء حذف المستخدم' : 'Failed to delete user');
+    }
+  };
 
   return (
-    <div dir="rtl" className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold flex items-center gap-2"><Users className="w-6 h-6 text-primary" /> المستخدمون الآخرون</h1>
-        <Button onClick={openCreate}><Plus className="w-4 h-4 ml-1" /> إضافة مستخدم</Button>
-      </div>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold flex items-center gap-2">
+        <Users className="w-6 h-6 text-primary" />
+        {lang === 'ar' ? 'المستخدمون الآخرون' : 'Other Users'}
+      </h1>
       <div className="relative max-w-sm">
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input className="pr-9" placeholder="بحث..." value={search} onChange={e => setSearch(e.target.value)} />
+        <Input className="pr-9" placeholder={lang === 'ar' ? 'بحث...' : 'Search...'} value={search} onChange={e => setSearch(e.target.value)} />
       </div>
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>#</TableHead>
-                <TableHead>الاسم</TableHead>
-                <TableHead>البريد</TableHead>
-                <TableHead>الدور</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead>تاريخ الإنشاء</TableHead>
-                <TableHead>إجراءات</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginated.map(u => (
-                <TableRow key={u.id}>
-                  <TableCell>{u.id}</TableCell>
-                  <TableCell className="font-medium">{u.name}</TableCell>
-                  <TableCell>{u.email}</TableCell>
-                  <TableCell><span className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-semibold">{roles.find(r => r.id === u.role_id)?.label || '-'}</span></TableCell>
-                  <TableCell><span className="px-2 py-1 rounded-md text-xs font-semibold bg-muted/30">{u.status || 'active'}</span></TableCell>
-                  <TableCell>{u.created_at ? new Date(u.created_at).toLocaleDateString('ar-SY') : '-'}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => openEdit(u)}><Pencil className="w-4 h-4" /></Button>
-                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete(u.id)}><Trash2 className="w-4 h-4" /></Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent dir="rtl">
-          <DialogHeader><DialogTitle>{editing ? 'تعديل مستخدم' : 'إضافة مستخدم'}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>الاسم</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
-            <div><Label>البريد الإلكتروني</Label><Input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} /></div>
-            <div><Label>الدور</Label>
-              <Select value={form.role_id} onValueChange={v => setForm(f => ({ ...f, role_id: v }))}>
-                <SelectTrigger><SelectValue placeholder="اختر الدور" /></SelectTrigger>
-                <SelectContent>{roles.map(r => <SelectItem key={r.id} value={String(r.id)}>{r.label}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter><Button onClick={handleSave}>{editing ? 'تحديث' : 'إضافة'}</Button></DialogFooter>
+      {!loaded ? (
+        <Loader2 className="animate-spin" />
+      ) : filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+          <Inbox className="w-10 h-10" />
+          <p className="text-sm">{lang === 'ar' ? 'لا يوجد مستخدمون حالياً' : 'No users available'}</p>
+        </div>
+      ) : (
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{lang === 'ar' ? 'الاسم' : 'Name'}</TableHead>
+                  <TableHead>{lang === 'ar' ? 'البريد' : 'Email'}</TableHead>
+                  <TableHead>{lang === 'ar' ? 'الدور' : 'Role'}</TableHead>
+                  <TableHead>{lang === 'ar' ? 'تاريخ الإنشاء' : 'Created At'}</TableHead>
+                  <TableHead>{lang === 'ar' ? 'إجراءات' : 'Actions'}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginated.map(u => (
+                  <TableRow key={u.id}>
+                    <TableCell className="font-medium">{u.name}</TableCell>
+                    <TableCell>{u.email}</TableCell>
+                    <TableCell><span className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-semibold">{u.role?.name ?? '-'}</span></TableCell>
+                    <TableCell>{new Date(u.created_at).toLocaleDateString(lang === 'ar' ? 'ar-SY' : 'en-US')}</TableCell>
+                    <TableCell>
+                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setDeleteTarget(u)}><Trash2 className="w-4 h-4" /></Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+          <DialogHeader>
+            <DialogTitle>{lang === 'ar' ? 'تأكيد الحذف' : 'Confirm Deletion'}</DialogTitle>
+            <DialogDescription>
+              {lang === 'ar'
+                ? `هل أنت متأكد بدك تحذف المستخدم "${deleteTarget?.name}"؟ لا يمكن التراجع عن هذا الإجراء.`
+                : `Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>{lang === 'ar' ? 'إلغاء' : 'Cancel'}</Button>
+            <Button variant="destructive" onClick={handleConfirmDelete} disabled={deleting}>
+              {deleting ? (lang === 'ar' ? 'جاري الحذف...' : 'Deleting...') : (lang === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete')}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
