@@ -31,22 +31,22 @@ interface NavItem {
 const allNavItems: NavItem[] = [
   { to: '/dashboard', icon: LayoutDashboard, labelAr: 'لوحة التحكم', labelEn: 'Dashboard' },
   // Admin
-  { to: '/dashboard/users', icon: Users, labelAr: 'المستخدمون', labelEn: 'Users', roles: ['admin'] },
-  { to: '/dashboard/colleges', icon: Building2, labelAr: 'الكليات', labelEn: 'Colleges', roles: ['admin'] },
-  { to: '/dashboard/departments', icon: Building2, labelAr: 'الأقسام', labelEn: 'Departments', roles: ['admin'] },
-  { to: '/dashboard/courses', icon: BookOpen, labelAr: 'المقررات', labelEn: 'Courses', roles: ['admin', 'academic_doctor'] },
-  { to: '/dashboard/laboratories', icon: FlaskConical, labelAr: 'المخابر', labelEn: 'Laboratories', roles: ['admin', 'lab_technician', 'dean'] },
-  { to: '/dashboard/warehouses', icon: Warehouse, labelAr: 'المستودعات', labelEn: 'Warehouses', roles: ['admin', 'warehouse_manager'] },
-  { to: '/dashboard/orders', icon: ClipboardList, labelAr: 'الطلبات', labelEn: 'Orders', roles: ['admin', 'warehouse_manager', 'lab_technician', 'dean'] },
-  { to: '/dashboard/hospital', icon: Hospital, labelAr: 'المستشفى', labelEn: 'Hospital', roles: ['admin', 'medical_doctor', 'nurse'] },
-  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['admin', 'student'] },
+  { to: '/dashboard/colleges', icon: Building2, labelAr: 'الكليات', labelEn: 'Colleges', roles: ['admin', 'university_admin'] },
+  { to: '/dashboard/departments', icon: Building2, labelAr: 'الأقسام', labelEn: 'Departments', roles: ['admin', 'university_admin'] },
+  { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['admin', 'university_admin'] },
+  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'medical_doctor'] },
+  { to: '/dashboard/laboratories', icon: FlaskConical, labelAr: 'المخابر', labelEn: 'Laboratories', roles: ['lab_technician', 'dean'] },
+  { to: '/dashboard/warehouses', icon: Warehouse, labelAr: 'المستودعات', labelEn: 'Warehouses', roles: [ 'warehouse_manager'] },
+  { to: '/dashboard/orders', icon: ClipboardList, labelAr: 'الطلبات', labelEn: 'Orders', roles: [ 'warehouse_manager', 'lab_technician'] },
+  { to: '/dashboard/hospital', icon: Hospital, labelAr: 'المستشفى', labelEn: 'Hospital', roles: [ 'medical_doctor', 'nurse'] },
+  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'medical_doctor'] },
   // Student
   { to: '/dashboard/my-courses', icon: BookOpen, labelAr: 'مقرراتي', labelEn: 'My Courses', roles: ['student'] },
   { to: '/dashboard/my-grades', icon: FileText, labelAr: 'علاماتي', labelEn: 'My Grades', roles: ['student'] },
   { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['student'] },
   
   // Doctor
-  { to: '/dashboard/grades', icon: FileText, labelAr: 'الدرجات', labelEn: 'Grades', roles: ['academic_doctor' ] },
+  // { to: '/dashboard/grades', icon: FileText, labelAr: 'الدرجات', labelEn: 'Grades', roles: ['admin'] },
   // Lab Tech
   { to: '/dashboard/equipment', icon: Package, labelAr: 'المعدات', labelEn: 'Equipment', roles: ['lab_technician'] },
   { to: '/dashboard/maintenance', icon: Wrench, labelAr: 'الصيانة', labelEn: 'Maintenance', roles: ['lab_technician'] },
@@ -70,7 +70,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   const navItems = allNavItems.filter(item => {
     if (!item.roles) return true;
-    if (roleName === 'admin') return true;
     return roleName ? item.roles.includes(roleName) : false;
   });
 
