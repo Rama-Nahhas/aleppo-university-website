@@ -9,11 +9,16 @@ import { users, colleges, departments } from '@/data/mockData';
 import { Users, UserPlus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 10;
 
 const ManageStudentsPage: React.FC = () => {
   const { lang } = useLanguage();
   const students = users.filter(u => u.role_id === 1);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { page, setPage, totalPages, paginated } = usePagination(students, PAGE_SIZE);
 
   return (
     <div className="space-y-6">
@@ -34,7 +39,7 @@ const ManageStudentsPage: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {students.map(s => {
+              {paginated.map(s => {
                 const college = colleges.find(c => c.id === s.college_id);
                 const dept = departments.find(d => d.id === s.department_id);
                 return (
@@ -56,6 +61,7 @@ const ManageStudentsPage: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>

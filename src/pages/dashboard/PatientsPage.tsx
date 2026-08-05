@@ -3,15 +3,20 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { medicalRecords, users } from '@/data/mockData';
 import { FileText } from 'lucide-react';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 9;
 
 const PatientsPage: React.FC = () => {
   const { lang } = useLanguage();
+  const { page, setPage, totalPages, paginated } = usePagination(medicalRecords, PAGE_SIZE);
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-foreground flex items-center gap-2"><FileText className="w-6 h-6" />{lang === 'ar' ? 'المرضى والسجلات الطبية' : 'Patients & Medical Records'}</h1>
       <div className="space-y-3">
-        {medicalRecords.map(r => {
+        {paginated.map(r => {
           const patient = users.find(u => u.id === r.patient_id);
           const doctor = users.find(u => u.id === r.doctor_id);
           return (
@@ -29,6 +34,7 @@ const PatientsPage: React.FC = () => {
           );
         })}
       </div>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
     </div>
   );
 };

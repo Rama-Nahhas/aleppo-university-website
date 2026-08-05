@@ -9,6 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { users as initialUsers, roles, colleges, departments } from '@/data/mockData';
 import { Plus, Pencil, Trash2, Search, Users } from 'lucide-react';
 import type { User } from '@/types';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 10;
 
 const UsersPage: React.FC = () => {
   const [data, setData] = useState<User[]>(initialUsers);
@@ -18,6 +22,7 @@ const UsersPage: React.FC = () => {
   const [form, setForm] = useState({ name: '', email: '', role_id: '', college_id: '', department_id: '' });
 
   const filtered = data.filter(u => u.name.includes(search) || u.email.includes(search));
+  const { page, setPage, totalPages, paginated } = usePagination(filtered, PAGE_SIZE);
 
   const openCreate = () => { setEditing(null); setForm({ name: '', email: '', role_id: '', college_id: '', department_id: '' }); setDialogOpen(true); };
   const openEdit = (u: User) => { setEditing(u); setForm({ name: u.name, email: u.email, role_id: String(u.role_id), college_id: u.college_id ? String(u.college_id) : '', department_id: u.department_id ? String(u.department_id) : '' }); setDialogOpen(true); };
@@ -64,7 +69,7 @@ const UsersPage: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map(u => (
+              {paginated.map(u => (
                 <TableRow key={u.id}>
                   <TableCell>{u.id}</TableCell>
                   <TableCell className="font-medium">{u.name}</TableCell>
@@ -83,6 +88,7 @@ const UsersPage: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent dir="rtl">

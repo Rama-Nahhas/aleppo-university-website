@@ -10,10 +10,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { hospitals as initialHospitals, hospitalDepartments as initialDepts } from '@/data/mockData';
 import { Plus, Pencil, Trash2, Hospital } from 'lucide-react';
 import type { Hospital as HospitalType, HospitalDepartment } from '@/types';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 10;
 
 const HospitalPage: React.FC = () => {
   const [hospitals, setHospitals] = useState<HospitalType[]>(initialHospitals);
   const [depts, setDepts] = useState<HospitalDepartment[]>(initialDepts);
+  const hospitalPagination = usePagination(hospitals, PAGE_SIZE);
+  const deptPagination = usePagination(depts, PAGE_SIZE);
   const [hDialogOpen, setHDialogOpen] = useState(false);
   const [dDialogOpen, setDDialogOpen] = useState(false);
   const [editingH, setEditingH] = useState<HospitalType | null>(null);
@@ -48,7 +54,7 @@ const HospitalPage: React.FC = () => {
             <Table>
               <TableHeader><TableRow><TableHead>#</TableHead><TableHead>الاسم</TableHead><TableHead>إجراءات</TableHead></TableRow></TableHeader>
               <TableBody>
-                {hospitals.map(h => (
+                {hospitalPagination.paginated.map(h => (
                   <TableRow key={h.id}>
                     <TableCell>{h.id}</TableCell>
                     <TableCell className="font-medium">{h.name}</TableCell>
@@ -63,6 +69,7 @@ const HospitalPage: React.FC = () => {
               </TableBody>
             </Table>
           </CardContent></Card>
+          <PaginationControls page={hospitalPagination.page} totalPages={hospitalPagination.totalPages} onPageChange={hospitalPagination.setPage} />
         </TabsContent>
         <TabsContent value="departments" className="space-y-4">
           <div className="flex justify-end"><Button onClick={openCreateD}><Plus className="w-4 h-4 ml-1" /> إضافة قسم</Button></div>
@@ -70,7 +77,7 @@ const HospitalPage: React.FC = () => {
             <Table>
               <TableHeader><TableRow><TableHead>#</TableHead><TableHead>القسم</TableHead><TableHead>المستشفى</TableHead><TableHead>إجراءات</TableHead></TableRow></TableHeader>
               <TableBody>
-                {depts.map(d => (
+                {deptPagination.paginated.map(d => (
                   <TableRow key={d.id}>
                     <TableCell>{d.id}</TableCell>
                     <TableCell className="font-medium">{d.name}</TableCell>
@@ -86,6 +93,7 @@ const HospitalPage: React.FC = () => {
               </TableBody>
             </Table>
           </CardContent></Card>
+          <PaginationControls page={deptPagination.page} totalPages={deptPagination.totalPages} onPageChange={deptPagination.setPage} />
         </TabsContent>
       </Tabs>
 

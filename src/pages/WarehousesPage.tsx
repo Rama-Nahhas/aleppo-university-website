@@ -11,11 +11,17 @@ import { warehouses as initialWarehouses, supplies as initialSupplies } from '@/
 import { Plus, Pencil, Trash2, Warehouse, Package } from 'lucide-react';
 import type { Warehouse as WarehouseType, Supply } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 10;
 
 const WarehousesPage: React.FC = () => {
   const { lang, t } = useLanguage();
   const [warehouseData, setWarehouseData] = useState<WarehouseType[]>(initialWarehouses);
   const [supplyData, setSupplyData] = useState<Supply[]>(initialSupplies);
+  const warehousePagination = usePagination(warehouseData, PAGE_SIZE);
+  const supplyPagination = usePagination(supplyData, PAGE_SIZE);
   const [wDialogOpen, setWDialogOpen] = useState(false);
   const [sDialogOpen, setSDialogOpen] = useState(false);
   const [editingW, setEditingW] = useState<WarehouseType | null>(null);
@@ -55,7 +61,7 @@ const WarehousesPage: React.FC = () => {
             <Table>
               <TableHeader><TableRow><TableHead>#</TableHead><TableHead>{lang === 'ar' ? 'الاسم': 'Name'}</TableHead><TableHead>{lang === 'ar' ? 'الموقع': 'Location'}</TableHead><TableHead>{lang === 'ar' ? 'إجراءات': 'Actions'}</TableHead></TableRow></TableHeader>
               <TableBody>
-                {warehouseData.map(w => (
+                {warehousePagination.paginated.map(w => (
                   <TableRow key={w.id}>
                    <TableCell className="font-medium">{lang === 'ar' ? w.name : w.nameEn}</TableCell>
                    <TableCell>{lang === 'ar' ? w.location : w.locationEn}</TableCell>
@@ -71,6 +77,7 @@ const WarehousesPage: React.FC = () => {
               </TableBody>
             </Table>
           </CardContent></Card>
+          <PaginationControls page={warehousePagination.page} totalPages={warehousePagination.totalPages} onPageChange={warehousePagination.setPage} lang={lang} />
         </TabsContent>
 
         <TabsContent value="supplies" className="space-y-4">
@@ -79,7 +86,7 @@ const WarehousesPage: React.FC = () => {
             <Table>
               <TableHeader><TableRow><TableHead>#</TableHead><TableHead>{lang === 'ar' ? 'المادة': 'Material'}</TableHead><TableHead>{lang === 'ar' ? 'الكمية': 'Quantity'}</TableHead><TableHead>{lang === 'ar' ? 'المستوع': 'Warehouse'}</TableHead><TableHead>{lang === 'ar' ? 'إجراءات': 'Actions'}</TableHead></TableRow></TableHeader>
               <TableBody>
-                {supplyData.map(s => (
+                {supplyPagination.paginated.map(s => (
                   <TableRow key={s.id}>
                     <TableCell>{s.id}</TableCell>
                     <TableCell className="font-medium">{s.name}</TableCell>
@@ -96,6 +103,7 @@ const WarehousesPage: React.FC = () => {
               </TableBody>
             </Table>
           </CardContent></Card>
+          <PaginationControls page={supplyPagination.page} totalPages={supplyPagination.totalPages} onPageChange={supplyPagination.setPage} lang={lang} />
         </TabsContent>
       </Tabs>
 

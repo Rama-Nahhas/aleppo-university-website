@@ -49,11 +49,16 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, Loader2, Inbox } from "lucide-react";
 import { Subject, useSubjectActions } from "@/hooks/students/useApiActions";
+import { usePagination } from "@/hooks/usePagination";
+import { PaginationControls } from "@/components/ui/pagination-controls";
+
+const PAGE_SIZE = 9;
 
 const MyCoursesPage: React.FC = () => {
   const { lang } = useLanguage();
   const { fetchStudentSubjects, loading } = useSubjectActions();
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const { page, setPage, totalPages, paginated } = usePagination(subjects, PAGE_SIZE);
 
   useEffect(() => {
     const loadData = async () => {
@@ -81,7 +86,7 @@ const MyCoursesPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
-          {subjects.map((s) => (
+          {paginated.map((s) => (
             <Card key={s.subject_id} className="border-0 shadow-sm">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
@@ -114,6 +119,7 @@ const MyCoursesPage: React.FC = () => {
           ))}
         </div>
       )}
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
     </div>
   );
 };

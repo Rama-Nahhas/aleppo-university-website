@@ -13,7 +13,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 
+const PAGE_SIZE = 10;
 
 const statusConfig: Record<OrderStatus, { label: string; color: string }> = {
   pending:   { label: 'في انتظار موافق العميد',          color: 'bg-amber-100 text-amber-700' },
@@ -121,6 +124,8 @@ const OrdersPage: React.FC = () => {
 
     return false;
   });
+
+  const { page, setPage, totalPages, paginated } = usePagination(visibleOrders, PAGE_SIZE);
 
   // ── إنشاء طلب جديد ─────────────────────────────────────────────────────────
   const submitNewOrder = () => {
@@ -244,7 +249,7 @@ const OrdersPage: React.FC = () => {
                   </TableCell>
                 </TableRow>
               )}
-              {visibleOrders.map(o => (
+              {paginated.map(o => (
                 <TableRow key={o.id}>
                   <TableCell>{o.id}</TableCell>
                   <TableCell className="font-medium">{getRequesterName(o.requester_id)}</TableCell>
@@ -266,6 +271,7 @@ const OrdersPage: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
 
       {/* ── نافذة طلب جديد ── */}
       <Dialog open={newOrderOpen} onOpenChange={setNewOrderOpen}>

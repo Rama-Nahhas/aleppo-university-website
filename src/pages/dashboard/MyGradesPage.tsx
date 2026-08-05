@@ -12,12 +12,17 @@ import {
 } from "@/components/ui/table";
 import { Inbox, Loader2 } from "lucide-react";
 import { Subject, useSubjectActions } from "@/hooks/students/useApiActions";
+import { usePagination } from "@/hooks/usePagination";
+import { PaginationControls } from "@/components/ui/pagination-controls";
+
+const PAGE_SIZE = 10;
 
 const MyGradesPage: React.FC = () => {
   const { user } = useAuth();
   const { lang } = useLanguage();
   const { fetchStudentSubjects, loading } = useSubjectActions();
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const { page, setPage, totalPages, paginated } = usePagination(subjects, PAGE_SIZE);
 
   useEffect(() => {
     const loadData = async () => {
@@ -54,7 +59,7 @@ const MyGradesPage: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {subjects.map((s) => (
+                {paginated.map((s) => (
                   <TableRow key={s.subject_id}>
                     <TableCell className="font-medium">
                       {s.subject_name}
@@ -89,6 +94,7 @@ const MyGradesPage: React.FC = () => {
           </CardContent>
         </Card>
       )}
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
     </div>
   );
 };

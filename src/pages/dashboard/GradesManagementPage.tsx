@@ -8,6 +8,56 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { courses, enrollments, users } from '@/data/mockData';
 import { FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 10;
+
+interface CourseGradesTableProps {
+  course: (typeof courses)[number];
+  lang: string;
+  grades: Record<string, number>;
+  setGrades: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+  onSaveGrade: (studentId: number, courseId: number) => void;
+}
+
+const CourseGradesTable: React.FC<CourseGradesTableProps> = ({ course, lang, grades, setGrades, onSaveGrade }) => {
+  const courseStudents = enrollments.filter(e => e.course_id === course.id);
+  const { page, setPage, totalPages, paginated } = usePagination(courseStudents, PAGE_SIZE);
+
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardContent className="p-5">
+        <h2 className="font-bold text-lg text-primary mb-4">{lang === 'ar' ? course.name : course.nameEn}</h2>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{lang === 'ar' ? 'الطالب' : 'Student'}</TableHead>
+              <TableHead>{lang === 'ar' ? 'الدرجة الحالية' : 'Current Grade'}</TableHead>
+              <TableHead>{lang === 'ar' ? 'درجة جديدة' : 'New Grade'}</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginated.map(e => {
+              const student = users.find(u => u.id === e.student_id);
+              const key = `${e.student_id}-${course.id}`;
+              return (
+                <TableRow key={e.student_id}>
+                  <TableCell>{lang === 'ar' ? student?.name : student?.nameEn}</TableCell>
+                  <TableCell>{e.grade ?? '-'}</TableCell>
+                  <TableCell><Input type="number" min={0} max={100} className="w-20" value={grades[key] ?? ''} onChange={ev => setGrades(p => ({ ...p, [key]: Number(ev.target.value) }))} /></TableCell>
+                  <TableCell><Button size="sm" onClick={() => onSaveGrade(e.student_id, course.id)}>{lang === 'ar' ? 'حفظ' : 'Save'}</Button></TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+        <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
+      </CardContent>
+    </Card>
+  );
+};
 
 const GradesManagementPage: React.FC = () => {
   const { user } = useAuth();
@@ -23,40 +73,16 @@ const GradesManagementPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-foreground flex items-center gap-2"><FileText className="w-6 h-6" />{lang === 'ar' ? 'إدارة الدرجات' : 'Grades Management'}</h1>
-      {doctorCourses.map(course => {
-        const courseStudents = enrollments.filter(e => e.course_id === course.id);
-        return (
-          <Card key={course.id} className="border-0 shadow-sm">
-            <CardContent className="p-5">
-              <h2 className="font-bold text-lg text-primary mb-4">{lang === 'ar' ? course.name : course.nameEn}</h2>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{lang === 'ar' ? 'الطالب' : 'Student'}</TableHead>
-                    <TableHead>{lang === 'ar' ? 'الدرجة الحالية' : 'Current Grade'}</TableHead>
-                    <TableHead>{lang === 'ar' ? 'درجة جديدة' : 'New Grade'}</TableHead>
-                    <TableHead></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {courseStudents.map(e => {
-                    const student = users.find(u => u.id === e.student_id);
-                    const key = `${e.student_id}-${course.id}`;
-                    return (
-                      <TableRow key={e.student_id}>
-                        <TableCell>{lang === 'ar' ? student?.name : student?.nameEn}</TableCell>
-                        <TableCell>{e.grade ?? '-'}</TableCell>
-                        <TableCell><Input type="number" min={0} max={100} className="w-20" value={grades[key] ?? ''} onChange={ev => setGrades(p => ({ ...p, [key]: Number(ev.target.value) }))} /></TableCell>
-                        <TableCell><Button size="sm" onClick={() => handleSaveGrade(e.student_id, course.id)}>{lang === 'ar' ? 'حفظ' : 'Save'}</Button></TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        );
-      })}
+      {doctorCourses.map(course => (
+        <CourseGradesTable
+          key={course.id}
+          course={course}
+          lang={lang}
+          grades={grades}
+          setGrades={setGrades}
+          onSaveGrade={handleSaveGrade}
+        />
+      ))}
     </div>
   );
 };

@@ -5,21 +5,39 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { resolveRoleName } from '@/lib/roleUtils';
 import type { RoleName } from '@/types';
 import { Plus, Pencil, Trash2, Megaphone, Calendar, Inbox, Loader2 } from 'lucide-react';
 import { Announcement, useAnnouncementActions } from '@/hooks/useAnnouncementActions';
+import { NamedOption, useCollegeLookups } from '@/hooks/students/useApiActions';
+import { STUDY_YEARS } from '@/lib/constants';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const COLLEGE_ID = 1;
+const PAGE_SIZE = 9;
 
 const AnnouncementsPage: React.FC = () => {
   const { user } = useAuth();
   const roleName = resolveRoleName(user as any) as RoleName | undefined;
   const canEdit = roleName === 'admin' || roleName === 'academic_doctor';
-  const { fetchAnnouncements, loading } = useAnnouncementActions();
+  const { fetchAnnouncements, createAnnouncement, loading } = useAnnouncementActions();
+  const { fetchDepartments } = useCollegeLookups();
   const [data, setData] = useState<Announcement[]>([]);
+  const { page, setPage, totalPages, paginated } = usePagination(data, PAGE_SIZE);
+  const [departments, setDepartments] = useState<NamedOption[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Announcement | null>(null);
-  const [form, setForm] = useState({ title: '', content: '' });
+  const [form, setForm] = useState({ title: '', content: '', year_id: '', department_id: '' });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -29,12 +47,34 @@ const AnnouncementsPage: React.FC = () => {
     loadData();
   }, []);
 
-  const openCreate = () => { if (!canEdit) return; setEditing(null); setForm({ title: '', content: '' }); setDialogOpen(true); };
-  const openEdit = (a: Announcement) => { if (!canEdit) return; setEditing(a); setForm({ title: a.title, content: a.content }); setDialogOpen(true); };
-  const handleSave = () => {
-    if (editing) setData(prev => prev.map(a => a.id === editing.id ? { ...a, ...form } : a));
-    else setData(prev => [...prev, { id: Date.now(), ...form, created_at: new Date().toISOString() }]);
-    setDialogOpen(false);
+  useEffect(() => {
+    const loadDepartments = async () => {
+      setDepartments(await fetchDepartments(COLLEGE_ID));
+    };
+    loadDepartments();
+  }, []);
+
+  const openCreate = () => { if (!canEdit) return; setEditing(null); setForm({ title: '', content: '', year_id: '', department_id: '' }); setDialogOpen(true); };
+  const openEdit = (a: Announcement) => { if (!canEdit) return; setEditing(a); setForm({ title: a.title, content: a.content, year_id: '', department_id: '' }); setDialogOpen(true); };
+  const handleSave = async () => {
+    if (editing) {
+      setData(prev => prev.map(a => a.id === editing.id ? { ...a, title: form.title, content: form.content } : a));
+      setDialogOpen(false);
+      return;
+    }
+    if (!form.year_id || !form.department_id) return;
+    setSaving(true);
+    const created = await createAnnouncement({
+      title: form.title,
+      content: form.content,
+      year_id: Number(form.year_id),
+      department_id: Number(form.department_id),
+    });
+    setSaving(false);
+    if (created) {
+      setData(prev => [created, ...prev]);
+      setDialogOpen(false);
+    }
   };
   const handleDelete = (id: number) => setData(prev => prev.filter(a => a.id !== id));
 
@@ -54,7 +94,7 @@ const AnnouncementsPage: React.FC = () => {
         </div>
       ) : (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {data.map(a => (
+        {paginated.map(a => (
           <Card key={a.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-5">
               <div className="flex items-start justify-between mb-3">
@@ -76,6 +116,7 @@ const AnnouncementsPage: React.FC = () => {
         ))}
       </div>
       )}
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent dir="rtl">
@@ -83,8 +124,34 @@ const AnnouncementsPage: React.FC = () => {
           <div className="space-y-3">
             <div><Label>العنوان</Label><Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} /></div>
             <div><Label>المحتوى</Label><Textarea rows={4} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} /></div>
+            {!editing && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>السنة</Label>
+                  <Select value={form.year_id} onValueChange={v => setForm(f => ({ ...f, year_id: v }))}>
+                    <SelectTrigger><SelectValue placeholder="اختر السنة" /></SelectTrigger>
+                    <SelectContent>
+                      {STUDY_YEARS.map(y => <SelectItem key={y.id} value={String(y.id)}>{y.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>القسم</Label>
+                  <Select value={form.department_id} onValueChange={v => setForm(f => ({ ...f, department_id: v }))}>
+                    <SelectTrigger><SelectValue placeholder="اختر القسم" /></SelectTrigger>
+                    <SelectContent>
+                      {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
           </div>
-          <DialogFooter><Button onClick={handleSave}>{editing ? 'تحديث' : 'نشر'}</Button></DialogFooter>
+          <DialogFooter>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? 'جاري النشر...' : editing ? 'تحديث' : 'نشر'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

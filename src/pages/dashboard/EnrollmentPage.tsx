@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button';
 import { courses, departments, enrollments } from '@/data/mockData';
 import { UserCheck, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 9;
 
 const EnrollmentPage: React.FC = () => {
   const { user } = useAuth();
@@ -13,6 +17,7 @@ const EnrollmentPage: React.FC = () => {
   const [enrolled, setEnrolled] = useState(enrollments.filter(e => e.student_id === user?.id).map(e => e.course_id));
 
   const deptCourses = courses.filter(c => c.department_id === user?.department_id);
+  const { page, setPage, totalPages, paginated } = usePagination(deptCourses, PAGE_SIZE);
 
   const handleEnroll = (courseId: number) => {
     setEnrolled(prev => [...prev, courseId]);
@@ -28,7 +33,7 @@ const EnrollmentPage: React.FC = () => {
       </h1>
       <p className="text-muted-foreground">{lang === 'ar' ? 'المقررات المتاحة في قسمك' : 'Available courses in your department'}</p>
       <div className="grid md:grid-cols-2 gap-4">
-        {deptCourses.map(c => {
+        {paginated.map(c => {
           const isEnrolled = enrolled.includes(c.id);
           return (
             <Card key={c.id} className="border-0 shadow-sm">
@@ -50,6 +55,7 @@ const EnrollmentPage: React.FC = () => {
         })}
         {deptCourses.length === 0 && <p className="text-muted-foreground col-span-2 text-center py-8">{lang === 'ar' ? 'لا توجد مقررات متاحة' : 'No courses available'}</p>}
       </div>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
     </div>
   );
 };

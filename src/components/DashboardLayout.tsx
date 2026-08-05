@@ -33,13 +33,12 @@ const allNavItems: NavItem[] = [
   // Admin
   { to: '/dashboard/colleges', icon: Building2, labelAr: 'الكليات', labelEn: 'Colleges', roles: ['admin', 'university_admin'] },
   { to: '/dashboard/departments', icon: Building2, labelAr: 'الأقسام', labelEn: 'Departments', roles: ['admin', 'university_admin'] },
-  { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['admin', 'university_admin'] },
+  { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['admin', 'university_admin', 'academic_doctor'] },
   { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'medical_doctor'] },
   { to: '/dashboard/laboratories', icon: FlaskConical, labelAr: 'المخابر', labelEn: 'Laboratories', roles: ['lab_technician', 'dean'] },
   { to: '/dashboard/warehouses', icon: Warehouse, labelAr: 'المستودعات', labelEn: 'Warehouses', roles: [ 'warehouse_manager'] },
   { to: '/dashboard/orders', icon: ClipboardList, labelAr: 'الطلبات', labelEn: 'Orders', roles: [ 'warehouse_manager', 'lab_technician'] },
   { to: '/dashboard/hospital', icon: Hospital, labelAr: 'المستشفى', labelEn: 'Hospital', roles: [ 'medical_doctor', 'nurse'] },
-  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'medical_doctor'] },
   // Student
   { to: '/dashboard/my-courses', icon: BookOpen, labelAr: 'مقرراتي', labelEn: 'My Courses', roles: ['student'] },
   { to: '/dashboard/my-grades', icon: FileText, labelAr: 'علاماتي', labelEn: 'My Grades', roles: ['student'] },
@@ -80,7 +79,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   };
 
   return (
-    <div className="flex min-h-screen" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="flex h-screen overflow-hidden" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       <aside className={cn("bg-sidebar text-sidebar-foreground flex flex-col transition-all duration-300 border-e border-sidebar-border relative", collapsed ? "w-16" : "w-64")}>
         <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
           <div className="w-9 h-9 bg-sidebar-primary rounded-lg flex items-center justify-center flex-shrink-0">

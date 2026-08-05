@@ -3,9 +3,14 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { maintenanceReports, laboratories } from '@/data/mockData';
 import { Wrench } from 'lucide-react';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 9;
 
 const MaintenancePage: React.FC = () => {
   const { lang } = useLanguage();
+  const { page, setPage, totalPages, paginated } = usePagination(maintenanceReports, PAGE_SIZE);
 
   const statusLabel = (s: string) => {
     const map: Record<string, { ar: string; en: string; cls: string }> = {
@@ -20,7 +25,7 @@ const MaintenancePage: React.FC = () => {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-foreground flex items-center gap-2"><Wrench className="w-6 h-6" />{lang === 'ar' ? 'تقارير الصيانة' : 'Maintenance Reports'}</h1>
       <div className="space-y-3">
-        {maintenanceReports.map(r => {
+        {paginated.map(r => {
           const lab = laboratories.find(l => l.id === r.lab_id);
           const st = statusLabel(r.status);
           return (
@@ -36,6 +41,7 @@ const MaintenancePage: React.FC = () => {
           );
         })}
       </div>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
     </div>
   );
 };

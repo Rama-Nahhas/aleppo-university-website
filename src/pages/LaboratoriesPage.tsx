@@ -11,6 +11,10 @@ import { Plus, Pencil, Trash2, FlaskConical } from 'lucide-react';
 import type { Laboratory } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 10;
 
 const LaboratoriesPage: React.FC = () => {
 
@@ -67,6 +71,8 @@ const LaboratoriesPage: React.FC = () => {
     return { college, labs: collegeLabs };
   }).filter(g => g.labs.length > 0);
 
+  const { page, setPage, totalPages, paginated } = usePagination(visibleLabs, PAGE_SIZE);
+
   // ── CRUD ──────────────────────────────────────────────────────
   const canEdit = role === 'admin' || role === 'university_admin' || role === 'dean';
 
@@ -115,7 +121,7 @@ const LaboratoriesPage: React.FC = () => {
         <Table>
           <TableHeader><TableRow><TableHead>#</TableHead><TableHead>{lang === 'ar' ? 'المخبر': 'The Laboratory'}</TableHead><TableHead>{lang === 'ar' ? 'القسم': 'The Department'}</TableHead><TableHead>{lang === 'ar' ? 'الفني': 'The Technician'}</TableHead><TableHead>{lang === 'ar' ? 'إجراءات': 'Actions'}</TableHead></TableRow></TableHeader>
           <TableBody>
-            {visibleLabs.map(l => (
+            {paginated.map(l => (
               <TableRow key={l.id}>
                 <TableCell>{l.id}</TableCell>
                 <TableCell className="font-medium">{l.name}</TableCell>
@@ -132,6 +138,7 @@ const LaboratoriesPage: React.FC = () => {
           </TableBody>
         </Table>
       </CardContent></Card>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent dir="rtl">
           <DialogHeader><DialogTitle>{editing

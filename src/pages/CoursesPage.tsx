@@ -9,6 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { courses as initialCourses, departments, users } from '@/data/mockData';
 import { Plus, Pencil, Trash2, BookOpen } from 'lucide-react';
 import type { Course } from '@/types';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 10;
 
 const CoursesPage: React.FC = () => {
   const [data, setData] = useState<Course[]>(initialCourses);
@@ -16,6 +20,7 @@ const CoursesPage: React.FC = () => {
   const [editing, setEditing] = useState<Course | null>(null);
   const [form, setForm] = useState({ name: '', department_id: '', doctor_id: '' });
   const doctors = users.filter(u => u.role_id === 2);
+  const { page, setPage, totalPages, paginated } = usePagination(data, PAGE_SIZE);
 
   const openCreate = () => { setEditing(null); setForm({ name: '', department_id: '', doctor_id: '' }); setDialogOpen(true); };
   const openEdit = (c: Course) => { setEditing(c); setForm({ name: c.name, department_id: String(c.department_id), doctor_id: String(c.doctor_id) }); setDialogOpen(true); };
@@ -36,7 +41,7 @@ const CoursesPage: React.FC = () => {
         <Table>
           <TableHeader><TableRow><TableHead>#</TableHead><TableHead>المقرر</TableHead><TableHead>القسم</TableHead><TableHead>الدكتور</TableHead><TableHead>إجراءات</TableHead></TableRow></TableHeader>
           <TableBody>
-            {data.map(c => (
+            {paginated.map(c => (
               <TableRow key={c.id}>
                 <TableCell>{c.id}</TableCell>
                 <TableCell className="font-medium">{c.name}</TableCell>
@@ -53,6 +58,7 @@ const CoursesPage: React.FC = () => {
           </TableBody>
         </Table>
       </CardContent></Card>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent dir="rtl">
           <DialogHeader><DialogTitle>{editing ? 'تعديل مقرر' : 'إضافة مقرر'}</DialogTitle></DialogHeader>

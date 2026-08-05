@@ -5,17 +5,22 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { appointments, clinics, users } from '@/data/mockData';
 import { Calendar, Check, Clock } from 'lucide-react';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 9;
 
 const AppointmentsPage: React.FC = () => {
   const { user } = useAuth();
   const { lang } = useLanguage();
   const myAppointments = appointments.filter(a => a.doctor_id === user?.id || user?.role?.name === 'admin' || user?.role?.name === 'nurse');
+  const { page, setPage, totalPages, paginated } = usePagination(myAppointments, PAGE_SIZE);
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-foreground flex items-center gap-2"><Calendar className="w-6 h-6" />{lang === 'ar' ? 'المواعيد الطبية' : 'Medical Appointments'}</h1>
       <div className="space-y-3">
-        {myAppointments.map(a => {
+        {paginated.map(a => {
           const patient = users.find(u => u.id === a.patient_id);
           const doctor = users.find(u => u.id === a.doctor_id);
           const clinic = clinics.find(c => c.id === a.clinic_id);
@@ -41,6 +46,7 @@ const AppointmentsPage: React.FC = () => {
           );
         })}
       </div>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
     </div>
   );
 };

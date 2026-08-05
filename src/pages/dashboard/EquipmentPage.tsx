@@ -4,9 +4,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { laboratories, supplies } from '@/data/mockData';
 import { Package } from 'lucide-react';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+
+const PAGE_SIZE = 10;
 
 const EquipmentPage: React.FC = () => {
   const { lang } = useLanguage();
+  const { page, setPage, totalPages, paginated } = usePagination(supplies, PAGE_SIZE);
 
   return (
     <div className="space-y-6">
@@ -21,7 +26,7 @@ const EquipmentPage: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {supplies.map(s => (
+              {paginated.map(s => (
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{lang === 'ar' ? s.name : s.nameEn}</TableCell>
                   <TableCell>{s.quantity}</TableCell>
@@ -31,6 +36,7 @@ const EquipmentPage: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} lang={lang} />
     </div>
   );
 };

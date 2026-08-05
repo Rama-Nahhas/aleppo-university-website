@@ -9,6 +9,9 @@ import {
   useCollegeLookups,
 } from "@/hooks/students/useApiActions";
 import { cn } from "@/lib/utils";
+import { resolveRoleName } from "@/lib/roleUtils";
+import type { RoleName } from "@/types";
+import DoctorSchedulesPage from "@/pages/dashboard/DoctorSchedulesPage";
 
 const COLLEGE_ID = 1;
 
@@ -70,7 +73,7 @@ const ScheduleCard: React.FC<{ item: YearSchedule; lang: string }> = ({
   </Card>
 );
 
-const MySchedulePage: React.FC = () => {
+const StudentSchedulePage: React.FC = () => {
   const { user } = useAuth();
   const { lang } = useLanguage();
   const { fetchStudentSchedule, loading } = useScheduleActions();
@@ -172,6 +175,17 @@ const MySchedulePage: React.FC = () => {
       )}
     </div>
   );
+};
+
+const MySchedulePage: React.FC = () => {
+  const { user } = useAuth();
+  const roleName = resolveRoleName(user as any) as RoleName | undefined;
+
+  if (roleName === "academic_doctor" || roleName === "admin" || roleName === "university_admin") {
+    return <DoctorSchedulesPage />;
+  }
+
+  return <StudentSchedulePage />;
 };
 
 export default MySchedulePage;
