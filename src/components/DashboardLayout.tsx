@@ -77,6 +77,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   React.useEffect(() => {
     setUsersMenuOpen(location.pathname.startsWith('/dashboard/users'));
   }, [location.pathname]);
+  const isExamArea = location.pathname.startsWith('/dashboard/exam-employee');
 
   const handleLogout = async () => {
     setLogoutDialogOpen(false);
@@ -153,6 +154,26 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               {!collapsed && <span className="truncate">{lang === 'ar' ? item.labelAr : item.labelEn}</span>}
             </NavLink>
           ))}
+
+          <div className="mt-2">
+            <div className="px-3 py-1 text-xs text-sidebar-foreground/60">موظف الامتحانات</div>
+            {/* <button onClick={()=>navigate('/dashboard/exam-employee')} className={cn("w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-start", location.pathname=== '/dashboard/exam-employee' ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+              <FileText className="w-5 h-5" />
+              {!collapsed && <span className="mr-1">لوحة التحكم</span>}
+            </button> */}
+            <button onClick={()=>navigate('/dashboard/exam-employee/subjects')} className={cn("w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-start", location.pathname.startsWith('/dashboard/exam-employee/subjects') ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+              <BookOpen className="w-5 h-5" />
+              {!collapsed && <span className="mr-1">المواد حسب السنة</span>}
+            </button>
+            <button onClick={()=>navigate('/dashboard/exam-employee/enter-grades')} className={cn("w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-start", location.pathname.startsWith('/dashboard/exam-employee/enter-grades') ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+              <FileText className="w-5 h-5" />
+              {!collapsed && <span className="mr-1">إدخال العلامات</span>}
+            </button>
+            <button onClick={()=>navigate('/dashboard/exam-employee/promoted')} className={cn("w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-start", location.pathname.startsWith('/dashboard/exam-employee/promoted') ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+              <Users className="w-5 h-5" />
+              {!collapsed && <span className="mr-1">الطلاب المترفعون</span>}
+            </button>
+          </div>
         </nav>
 
         <div className="p-3 border-t border-sidebar-border space-y-1">

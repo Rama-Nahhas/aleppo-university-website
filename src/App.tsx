@@ -164,6 +164,12 @@ import MySchedulePage from "@/pages/dashboard/MySchedulePage";
 import ChangePasswordPage from "@/pages/dashboard/ChangePasswordPage";
 
 import GradesManagementPage from "@/pages/dashboard/GradesManagementPage";
+import ExamDashboardPage from '@/pages/dashboard/ExamDashboardPage';
+import SubjectsByYearPage from '@/pages/dashboard/exam/SubjectsByYearPage';
+import EnterGradesPage from '@/pages/dashboard/exam/EnterGradesPage';
+import SubjectStudentsPage from '@/pages/dashboard/exam/SubjectStudentsPage';
+import PromotedStudentsPage from '@/pages/dashboard/exam/PromotedStudentsPage';
+import { ExamProvider } from '@/contexts/ExamContext';
 import EquipmentPage from "@/pages/dashboard/EquipmentPage";
 import MaintenancePage from "@/pages/dashboard/MaintenancePage";
 import ManageStudentsPage from "@/pages/dashboard/ManageStudentsPage";
@@ -439,6 +445,11 @@ const AppRoutes = () => (
         </ProtectedRoute>
       }
     />
+    <Route path="/dashboard/exam-employee" element={<ProtectedRoute><ExamProvider><ExamDashboardPage/></ExamProvider></ProtectedRoute>} />
+    <Route path="/dashboard/exam-employee/subjects" element={<ProtectedRoute><ExamProvider><SubjectsByYearPage/></ExamProvider></ProtectedRoute>} />
+    <Route path="/dashboard/exam-employee/enter-grades" element={<ProtectedRoute><ExamProvider><EnterGradesPage/></ExamProvider></ProtectedRoute>} />
+    <Route path="/dashboard/exam-employee/subjects/:id/students" element={<ProtectedRoute><ExamProvider><SubjectStudentsPage/></ExamProvider></ProtectedRoute>} />
+    <Route path="/dashboard/exam-employee/promoted" element={<ProtectedRoute><ExamProvider><PromotedStudentsPage/></ExamProvider></ProtectedRoute>} />
 
     {/* Lab Tech */}
     <Route
