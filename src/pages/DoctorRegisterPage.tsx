@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,18 @@ const DoctorRegisterPage: React.FC = () => {
   const { handleRegisterDoctor, isSubmitting, error } = useAuthActions();
   const [showPassword, setShowPassword] = useState(false);
 
+  // إذا كان في تسجيل سابق لسه ما تحقق فيه بالكود (OTP)، رجّعه فوراً
+  // لصفحة التحقق بدل ما يبلّش تسجيل من جديد
+  useEffect(() => {
+    const pendingEmail = sessionStorage.getItem("pendingDoctorOtpEmail");
+    if (pendingEmail) {
+      navigate("/register/doctor/verify", {
+        state: { email: pendingEmail },
+        replace: true,
+      });
+    }
+  }, [navigate]);
+
   const {
     register,
     handleSubmit,
@@ -84,6 +96,7 @@ const DoctorRegisterPage: React.FC = () => {
           className: "bg-green-600 text-white font-semibold",
         });
 
+        sessionStorage.setItem("pendingDoctorOtpEmail", result.email);
         navigate("/register/doctor/verify", {
           state: { email: result.email },
         });

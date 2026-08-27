@@ -1,120 +1,202 @@
-import React, { useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useExam } from '@/contexts/ExamContext';
+import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
+} from "@/components/ui/dialog";
+import { Loader2, Inbox, Save, ArrowLeft } from "lucide-react";
+import {
+  ExamStudent,
+  PASSING_MARK,
+  useExamEmployeeActions,
+} from "@/hooks/examEmployee/useApiActions";
 
-type StudentState = {
+type SaveStatus = "not_entered" | "saved" | "modified" | "error";
+
+interface StudentRow {
   student_id: number;
   name: string;
   mark: number | null;
-  status: 'غير مدخلة' | 'محفوظ' | 'معدّلة ولم تحفظ' | 'خطأ في القيمة';
-  prev?: number | null;
-};
+  savedMark: number | null;
+  is_success: boolean | null;
+  status: SaveStatus;
+}
 
-const EnterGradesPage: React.FC = ()=>{
+const toRow = (s: ExamStudent): StudentRow => ({
+  student_id: s.student_id,
+  name: s.name,
+  mark: s.mark,
+  savedMark: s.mark,
+  is_success: s.is_success,
+  status: s.mark == null ? "not_entered" : "saved",
+});
+
+const EnterGradesPage: React.FC = () => {
   const { state } = useLocation();
-  const { subjects, getSubjectById, getSubjectStudentsResponse, MOCK_PASSING_MARK, updateStudentMark, setSelectedSubjectId } = useExam();
-  const selectedSubjectId = state?.subjectId ?? subjects[0]?.id ?? null;
-  const subjectId = selectedSubjectId ? Number(selectedSubjectId) : null;
-  const subject = subjectId ? getSubjectById(subjectId) : undefined;
-  const resp = subjectId
-    ? getSubjectStudentsResponse(subjectId)
-    : { subject: { id: 0, name: '', year_id: 0 }, new_students: [], failed_students: [] };
-  const rawStudents = resp.new_students.concat(resp.failed_students);
-  const subjectStats = subjectId ? subjects.find(s => s.id === subjectId) : undefined;
-  const studentsCount = rawStudents.length;
-  const enteredCount = rawStudents.filter(s => s.mark != null).length;
-  const completionPercent = studentsCount ? Math.round((enteredCount / studentsCount) * 100) : 0;
-  const subjectLabel = subjectStats?.name ?? subject?.name ?? 'غير معروف';
-  const subjectDept = subjectStats?.department ?? subject?.department_id ?? '-';
-  const subjectYear = subjectStats?.year ?? subject?.year?.name ?? 'غير معروف';
+  const navigate = useNavigate();
   const { lang } = useLanguage();
+  const isArabic = lang === "ar";
+  const { toast } = useToast();
+  const { fetchSubjectStudents, updateMark, loading } = useExamEmployeeActions();
 
-  const [students, setStudents] = useState<StudentState[]>(rawStudents.map(s=>({ student_id: s.student_id, name: s.name, mark: s.mark, status: s.mark==null? 'غير مدخلة':'محفوظ', prev: s.mark })));
+  const subjectId: number | null = state?.subjectId ? Number(state.subjectId) : null;
+
+  const [subjectName, setSubjectName] = useState<string>("");
+  const [rows, setRows] = useState<StudentRow[]>([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [filterQ, setFilterQ] = useState("");
+  const [savingId, setSavingId] = useState<number | null>(null);
+  const [isSavingAll, setIsSavingAll] = useState(false);
+
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingEdit, setPendingEdit] = useState<{studentId:number; name:string; oldMark:number | null; newMark:number | null} | null>(null);
-  const [filterQ, setFilterQ] = useState('');
-  const [filterState, setFilterState] = useState<'all'|'not_entered'|'saved'|'modified' | 'error'>('all');
+  const [pendingEdit, setPendingEdit] = useState<{ studentId: number; name: string; oldMark: number | null; newMark: number } | null>(null);
 
-  const filtered = useMemo(()=> students.filter(st=> String(st.student_id).includes(filterQ) || st.name.includes(filterQ) || (st.mark!==null && String(st.mark).includes(filterQ) )),[students,filterQ]);
-
-  const updateMark = (student_id:number, val:string)=>{
-    setStudents(prev=> prev.map(p=> p.student_id===student_id? ({...p, mark: val===''? null: Number(val), status: val===''? 'غير مدخلة' : (p.status==='محفوظ' && Number(val)!==p.prev? 'معدّلة ولم تحفظ': (p.status==='محفوظ'?'محفوظ':p.status))}) : p));
-  };
-
-  const saveAll = ()=>{
-    // validate
-    const invalid = students.find(s=> s.mark!==null && (isNaN(s.mark as any) || (s.mark as number) < 0 || (s.mark as number) > 100));
-    if(invalid){
-      alert('توجد قيم غير صالحة، تحقق من الإدخالات.');
-      return;
+  const loadData = async () => {
+    if (!subjectId) return;
+    const data = await fetchSubjectStudents(subjectId);
+    if (data) {
+      setSubjectName(data.subject.name);
+      setRows(data.new_students.concat(data.failed_students).map(toRow));
     }
-    // apply to context
-    students.forEach(s=> updateStudentMark(Number(subjectId), s.student_id, s.mark ?? null));
-    setStudents(prev=> prev.map(p=> ({...p, status: p.mark==null? 'غير مدخلة':'محفوظ', prev: p.mark })));
-    alert('تم حفظ التعديلات محلياً');
+    setInitialLoading(false);
   };
 
-  const cancelAll = ()=>{
-    // reset reads fresh from context original mock
-    const freshResp = getSubjectStudentsResponse(Number(subjectId));
-    const fresh = freshResp.new_students.concat(freshResp.failed_students);
-    setStudents(fresh.map(s=>({ student_id: s.student_id, name: s.name, mark: s.mark, status: s.mark==null? 'غير مدخلة':'محفوظ', prev: s.mark })));
-  };
-
-  const fillSample = ()=>{
-    // fill sample: set all to passing mark
-    const passing = MOCK_PASSING_MARK ?? 60;
-    setStudents(prev=> prev.map(p=> ({...p, mark: passing, status: 'محفوظ', prev: passing })));
-    // apply to context
-    students.forEach(s=> updateStudentMark(Number(subjectId), s.student_id, passing));
-  };
-
-  // sync when subject or rawStudents change
-  React.useEffect(()=>{
-    setStudents(rawStudents.map(s=>({ student_id: s.student_id, name: s.name, mark: s.mark, status: s.mark==null? 'غير مدخلة':'محفوظ', prev: s.mark })));
+  useEffect(() => {
+    void loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subjectId]);
 
-  const handleSaveSingle = (st: StudentState)=>{
-    // validation
-    if(st.mark!==null && (isNaN(st.mark as any) || st.mark < 0 || st.mark > 100)){
-      alert('قيمة غير صالحة');
+  const studentsCount = rows.length;
+  const enteredCount = rows.filter((r) => r.mark != null).length;
+  const completionPercent = studentsCount ? Math.round((enteredCount / studentsCount) * 100) : 0;
+
+  const filtered = useMemo(
+    () =>
+      rows.filter(
+        (r) => r.name.includes(filterQ) || String(r.student_id).includes(filterQ),
+      ),
+    [rows, filterQ],
+  );
+
+  const handleMarkChange = (studentId: number, value: string) => {
+    setRows((prev) =>
+      prev.map((r) => {
+        if (r.student_id !== studentId) return r;
+        const mark = value === "" ? null : Number(value);
+        const status: SaveStatus =
+          mark === r.savedMark ? (mark == null ? "not_entered" : "saved") : "modified";
+        return { ...r, mark, status };
+      }),
+    );
+  };
+
+  const isInvalid = (mark: number | null) =>
+    mark !== null && (Number.isNaN(mark) || mark < 0 || mark > 100);
+
+  const persistMark = async (row: StudentRow): Promise<void> => {
+    if (!subjectId || row.mark == null) return;
+    const ok = await updateMark(subjectId, row.student_id, row.mark);
+    setRows((prev) =>
+      prev.map((r) =>
+        r.student_id === row.student_id
+          ? {
+              ...r,
+              savedMark: ok ? row.mark : r.savedMark,
+              is_success: ok ? row.mark! >= PASSING_MARK : r.is_success,
+              status: ok ? "saved" : "error",
+            }
+          : r,
+      ),
+    );
+    if (!ok) {
+      toast({
+        title: isArabic ? "تعذّر حفظ العلامة" : "Failed to save mark",
+        description: `${row.name}`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveSingle = async (row: StudentRow) => {
+    if (isInvalid(row.mark)) {
+      toast({ title: isArabic ? "قيمة غير صالحة (0-100)" : "Invalid value (0-100)", variant: "destructive" });
       return;
     }
-    // if previously saved and changed, ask confirm
-    if(st.prev!=null && st.prev!==st.mark){
-      const name = rawStudents.find(r=>r.student_id===st.student_id)?.name||'';
-      setPendingEdit({studentId:st.student_id, name, oldMark: st.prev ?? null, newMark: st.mark});
+    if (row.mark == null) return;
+
+    // إذا كانت هناك علامة محفوظة مسبقاً وتم تغييرها، نطلب تأكيد قبل الاستبدال
+    if (row.savedMark != null && row.savedMark !== row.mark) {
+      setPendingEdit({ studentId: row.student_id, name: row.name, oldMark: row.savedMark, newMark: row.mark });
       setConfirmOpen(true);
       return;
     }
-    updateStudentMark(Number(subjectId), st.student_id, st.mark ?? null);
-    setStudents(prev=> prev.map(p=> p.student_id===st.student_id? ({...p, status: st.mark==null? 'غير مدخلة':'محفوظ', prev: st.mark}):p));
+
+    setSavingId(row.student_id);
+    await persistMark(row);
+    setSavingId(null);
   };
 
-  const confirmApplyEdit = ()=>{
-    if(!pendingEdit) return;
-    updateStudentMark(Number(subjectId), pendingEdit.studentId, pendingEdit.newMark ?? null);
-    setStudents(prev=> prev.map(p=> p.student_id===pendingEdit.studentId? ({...p, status: pendingEdit.newMark==null? 'غير مدخلة':'محفوظ', prev: pendingEdit.newMark}):p));
+  const confirmApplyEdit = async () => {
+    if (!pendingEdit) return;
+    const row = rows.find((r) => r.student_id === pendingEdit.studentId);
     setConfirmOpen(false);
+    if (row) {
+      setSavingId(row.student_id);
+      await persistMark(row);
+      setSavingId(null);
+    }
     setPendingEdit(null);
+  };
+
+  const handleSaveAll = async () => {
+    const toSave = rows.filter((r) => r.status === "modified" && r.mark != null && !isInvalid(r.mark));
+    if (toSave.length === 0) {
+      toast({ title: isArabic ? "لا توجد تعديلات لحفظها" : "No changes to save" });
+      return;
+    }
+    setIsSavingAll(true);
+    for (const row of toSave) {
+      await persistMark(row);
+    }
+    setIsSavingAll(false);
+    toast({
+      title: isArabic ? "تم حفظ التعديلات" : "Changes saved",
+      className: "bg-green-600 text-white font-semibold",
+    });
   };
 
   if (!subjectId) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">إدخال العلامات</h1>
-        <div className="p-4 bg-card rounded-lg">
-          <p>لا توجد مادة متاحة للعرض.</p>
+        <h1 className="text-2xl font-bold text-foreground">
+          {isArabic ? "إدخال العلامات" : "Enter Grades"}
+        </h1>
+        <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+          <Inbox className="w-10 h-10" />
+          <p className="text-sm">
+            {isArabic ? "الرجاء اختيار مادة أولاً من صفحة المواد" : "Please select a subject first from the Subjects page"}
+          </p>
+          <Button variant="outline" className="gap-1.5" onClick={() => navigate("/dashboard/exam-employee/subjects")}>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            {isArabic ? "المواد حسب السنة" : "Subjects by Year"}
+          </Button>
         </div>
       </div>
     );
@@ -122,85 +204,172 @@ const EnterGradesPage: React.FC = ()=>{
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">إدخال العلامات</h1>
-      <div className="p-4 bg-card rounded-lg">
-        <p>المادة: <strong>{subjectLabel}</strong></p>
-        <p>القسم: {subjectDept} - السنة: {subjectYear}</p>
-        <p>عدد الطلاب: {studentsCount} - المدخلة: {enteredCount} - غير المدخلة: {studentsCount - enteredCount}</p>
-        <p>نسبة الإنجاز: {completionPercent}%</p>
-      </div>
+      <h1 className="text-2xl font-bold text-foreground">
+        {isArabic ? "إدخال العلامات" : "Enter Grades"}
+      </h1>
 
-      <div className="flex gap-2">
-        <input placeholder="بحث باسم الطالب أو رقمه" className="input" value={filterQ} onChange={e=>setFilterQ(e.target.value)} />
-        <select value={filterState} onChange={e=>setFilterState(e.target.value as any)} className="input">
-          <option value="all">الكل</option>
-          <option value="not_entered">غير مدخلة</option>
-          <option value="saved">محفوظة</option>
-          <option value="modified">معدّلة ولم تحفظ</option>
-        </select>
-        <button onClick={saveAll} className="btn btn-primary">حفظ جميع التعديلات</button>
-        <button onClick={cancelAll} className="btn">إلغاء التعديلات</button>
-        <button onClick={fillSample} className="btn">تعبئة علامات تجريبية</button>
-      </div>
+      {initialLoading ? (
+        <Loader2 className="animate-spin" />
+      ) : (
+        <>
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-5 space-y-1">
+              <p className="text-sm">
+                {isArabic ? "المادة: " : "Subject: "}
+                <strong>{subjectName}</strong>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {isArabic ? "عدد الطلاب: " : "Students: "}
+                {studentsCount} · {isArabic ? "المدخلة: " : "Entered: "}
+                {enteredCount} · {isArabic ? "نسبة الإنجاز: " : "Completion: "}
+                {completionPercent}%
+              </p>
+            </CardContent>
+          </Card>
 
-      <div className="overflow-auto bg-card p-3 rounded-lg">
-        <table className="w-full text-sm table-auto">
-          <thead>
-            <tr className="text-muted-foreground text-left">
-              <th className="p-2">#</th>
-              <th className="p-2">الرقم</th>
-              <th className="p-2">اسم الطالب</th>
-              <th className="p-2">العلامة الحالية</th>
-              <th className="p-2">إدخال/تعديل</th>
-              <th className="p-2">النتيجة</th>
-              <th className="p-2">حالة الحفظ</th>
-              <th className="p-2">إجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((st,idx)=>{
-              const raw = rawStudents.find(rs=>rs.student_id===st.student_id)!;
-              const result = raw?.is_success === null ? 'غير محددة' : (raw?.is_success === 1 ? 'ناجح' : (raw?.is_success === 0 ? 'راسب' : (st.mark==null? 'غير مدخلة' : (st.mark >= (MOCK_PASSING_MARK||60)? 'ناجح':'راسب'))));
-              const error = st.mark!==null && (isNaN(st.mark as any) || (st.mark as number)<0 || (st.mark as number)>100);
-              return (
-                <tr key={st.student_id} className="border-t">
-                  <td className="p-2">{idx+1}</td>
-                  <td className="p-2">{st.student_id}</td>
-                  <td className="p-2">{st.name}</td>
-                  <td className="p-2">{st.mark==null? 'غير مدخلة' : st.mark}</td>
-                  <td className="p-2">
-                    <input type="number" value={st.mark===null? '': String(st.mark)} onChange={e=>updateMark(st.student_id,e.target.value)} className="input w-24" />
-                    {error && <p className="text-xs text-destructive mt-1">قيمة خارج النطاق (0-100)</p>}
-                  </td>
-                  <td className="p-2">{result}</td>
-                  <td className="p-2">{error? 'خطأ في القيمة' : st.status}</td>
-                  <td className="p-2 space-x-1">
-                    <button onClick={()=>handleSaveSingle(st)} className="btn btn-sm">حفظ</button>
-                    <button onClick={()=> setStudents(prev=> prev.map(p=> p.student_id===st.student_id? ({...p, mark: p.prev, status: p.prev==null? 'غير مدخلة':'محفوظ'}):p))} className="btn btn-sm">استعادة</button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogContent dir="rtl">
-          <DialogHeader>
-            <DialogTitle>تأكيد تعديل العلامة</DialogTitle>
-            <DialogDescription>
-              {pendingEdit ? (
-                <div className="space-y-2">
-                  <p>الطالب: <strong>{pendingEdit.name}</strong></p>
-                  <p>العلامة القديمة: <strong>{pendingEdit.oldMark ?? '-'}</strong></p>
-                  <p>العلامة الجديدة: <strong>{pendingEdit.newMark ?? '-'}</strong></p>
+          <div className="flex gap-2 flex-wrap items-center">
+            <Input
+              placeholder={isArabic ? "بحث باسم الطالب أو رقمه" : "Search by name or ID"}
+              value={filterQ}
+              onChange={(e) => setFilterQ(e.target.value)}
+              className="max-w-xs"
+            />
+            <Button onClick={handleSaveAll} disabled={isSavingAll} className="gap-1.5">
+              {isSavingAll && <Loader2 className="w-4 h-4 animate-spin" />}
+              <Save className="w-4 h-4" />
+              {isArabic ? "حفظ كل التعديلات" : "Save All Changes"}
+            </Button>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+              <Inbox className="w-10 h-10" />
+              <p className="text-sm">{isArabic ? "لا يوجد طلاب" : "No students"}</p>
+            </div>
+          ) : (
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-5">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>#</TableHead>
+                        <TableHead>{isArabic ? "الرقم" : "ID"}</TableHead>
+                        <TableHead>{isArabic ? "اسم الطالب" : "Student Name"}</TableHead>
+                        <TableHead>{isArabic ? "العلامة" : "Mark"}</TableHead>
+                        <TableHead>{isArabic ? "النتيجة" : "Result"}</TableHead>
+                        <TableHead>{isArabic ? "الحالة" : "Status"}</TableHead>
+                        <TableHead className="text-end">{isArabic ? "إجراءات" : "Actions"}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((row, idx) => {
+                        const invalid = isInvalid(row.mark);
+                        const result =
+                          row.mark == null
+                            ? isArabic ? "غير مدخلة" : "Not entered"
+                            : row.mark >= PASSING_MARK
+                              ? isArabic ? "ناجح" : "Pass"
+                              : isArabic ? "راسب" : "Fail";
+                        return (
+                          <TableRow key={row.student_id}>
+                            <TableCell>{idx + 1}</TableCell>
+                            <TableCell>{row.student_id}</TableCell>
+                            <TableCell className="font-medium">{row.name}</TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={row.mark === null ? "" : String(row.mark)}
+                                onChange={(e) => handleMarkChange(row.student_id, e.target.value)}
+                                className="w-24"
+                              />
+                              {invalid && (
+                                <p className="text-xs text-destructive mt-1">
+                                  {isArabic ? "قيمة خارج النطاق (0-100)" : "Out of range (0-100)"}
+                                </p>
+                              )}
+                            </TableCell>
+                            <TableCell>{result}</TableCell>
+                            <TableCell>
+                              {row.status === "not_entered" && (
+                                <Badge variant="secondary">{isArabic ? "غير مدخلة" : "Not entered"}</Badge>
+                              )}
+                              {row.status === "saved" && (
+                                <Badge className="border-transparent bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+                                  {isArabic ? "محفوظة" : "Saved"}
+                                </Badge>
+                              )}
+                              {row.status === "modified" && (
+                                <Badge className="border-transparent bg-amber-100 text-amber-700 hover:bg-amber-100">
+                                  {isArabic ? "معدّلة ولم تُحفظ" : "Modified, unsaved"}
+                                </Badge>
+                              )}
+                              {row.status === "error" && (
+                                <Badge variant="destructive">{isArabic ? "خطأ بالحفظ" : "Save failed"}</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex justify-end">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={savingId === row.student_id || invalid || row.mark == null}
+                                  onClick={() => handleSaveSingle(row)}
+                                  className="gap-1.5"
+                                >
+                                  {savingId === row.student_id && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                                  {isArabic ? "حفظ" : "Save"}
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
-              ) : null}
-            </DialogDescription>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent dir={isArabic ? "rtl" : "ltr"}>
+          <DialogHeader>
+            <DialogTitle>{isArabic ? "تأكيد تعديل العلامة" : "Confirm Mark Change"}</DialogTitle>
           </DialogHeader>
+          {pendingEdit && (
+            <div className="space-y-2 text-foreground">
+              <p>
+                {isArabic ? "الطالب: " : "Student: "}
+                <strong>{pendingEdit.name}</strong>
+              </p>
+              <p>
+                {isArabic ? "العلامة القديمة: " : "Old mark: "}
+                <strong>{pendingEdit.oldMark ?? "-"}</strong>
+              </p>
+              <p>
+                {isArabic ? "العلامة الجديدة: " : "New mark: "}
+                <strong>{pendingEdit.newMark}</strong>
+              </p>
+            </div>
+          )}
           <DialogFooter>
-            <Button variant="outline" onClick={()=>{setConfirmOpen(false); setPendingEdit(null);}}>إلغاء</Button>
-            <Button variant="destructive" onClick={confirmApplyEdit}>تأكيد التعديل</Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfirmOpen(false);
+                setPendingEdit(null);
+              }}
+            >
+              {isArabic ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button variant="destructive" onClick={confirmApplyEdit} disabled={loading}>
+              {isArabic ? "تأكيد التعديل" : "Confirm"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

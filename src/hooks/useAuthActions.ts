@@ -17,10 +17,19 @@ export interface UserData {
   nameEn?: string;
   email: string;
   is_active: number;
+  is_manager?: number;
+  is_boss?: number;
+  image?: string | null;
   student_number: string | null;
   admission_type: string | null;
+  birth_date?: string | null;
   phone: string | null;
   address: string | null;
+  specialization?: string | null;
+  university?: string | null;
+  graduation_year?: number | null;
+  employment_year?: number | null;
+  work_history?: string | null;
   created_at: string;
   updated_at: string;
   role?: { id: number; name: string; label?: string } | null;
@@ -50,6 +59,7 @@ export const useAuthActions = () => {
       const axiosError = err as AxiosError<LaravelErrorResponse>;
       setError(
         axiosError.response?.data?.message ||
+          (err instanceof Error ? err.message : undefined) ||
           "خطأ في البريد الإلكتروني أو كلمة المرور. يرجى المحاولة مجدداً.",
       );
     } finally {

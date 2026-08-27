@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Globe, GraduationCap, School, User ,BookOpen } from 'lucide-react';
@@ -8,6 +8,18 @@ const RegisterChoicePage: React.FC = () => {
   const { lang, toggleLang } = useLanguage();
   const navigate = useNavigate();
   const isArabic = lang === 'ar';
+
+  // إذا في تسجيل دكتور معلّق ولسا ما تم التحقق من إيميلو، ماله معنى
+  // يرجع يختار نوع الحساب من جديد - نكمّل معه من نفس النقطة يلي وقف فيها
+  useEffect(() => {
+    const pendingEmail = sessionStorage.getItem('pendingDoctorOtpEmail');
+    if (pendingEmail) {
+      navigate('/register/doctor/verify', {
+        state: { email: pendingEmail },
+        replace: true,
+      });
+    }
+  }, [navigate]);
 
   return (
     <div

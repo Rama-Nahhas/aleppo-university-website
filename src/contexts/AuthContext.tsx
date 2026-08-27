@@ -48,6 +48,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<UserData>;
   registerStudent: (data: RegisterStudentData) => Promise<UserData>;
   registerDoctor: (data: RegisterDoctorData) => Promise<DoctorRegisterResponse>;
+  updateUser: (user: UserData) => void;
   logout: () => Promise<void>;
   loading: boolean;
 }
@@ -120,6 +121,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const { access_token } = response.data;
     const userData = normalizeUser(response.data.user);
 
+    if (userData && Number(userData.is_active) === 0) {
+      throw new Error(
+        "حسابك قيد المراجعة من قبل الإدارة. يرجى الانتظار حتى تتم الموافقة على طلب تسجيلك.",
+      );
+    }
+
     localStorage.setItem("token", access_token);
     localStorage.setItem("user", JSON.stringify(userData ?? null));
     setToken(access_token);
@@ -145,6 +152,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return userData;
   };
+  // بعد تعديل بيانات البروفايل، منحدّث حالة المستخدم بكل مكان
+  // (context + أي تخزين محلي/جلسة مستخدم فعلياً) بدون الحاجة لإعادة تسجيل الدخول
+  const updateUser = (updatedUser: UserData): void => {
+    setUser(updatedUser);
+    if (localStorage.getItem("user") !== null) {
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+    if (sessionStorage.getItem("user") !== null) {
+      sessionStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+  };
+
   const registerDoctor = async (
     data: RegisterDoctorData,
   ): Promise<DoctorRegisterResponse> => {
@@ -164,6 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         login,
         registerStudent,
         registerDoctor,
+        updateUser,
         logout,
         loading,
       }}

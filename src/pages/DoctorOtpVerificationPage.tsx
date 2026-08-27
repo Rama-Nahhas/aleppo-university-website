@@ -20,9 +20,18 @@ const DoctorOtpVerificationPage: React.FC = () => {
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
 
-  const email = (location.state as { email?: string } | null)?.email ?? "";
+  const stateEmail = (location.state as { email?: string } | null)?.email ?? "";
+  const email =
+    stateEmail || sessionStorage.getItem("pendingDoctorOtpEmail") || "";
   const emailMessage =
     email || (lang === "ar" ? "بريدك الإلكتروني أو رقم هاتفك" : "your email or phone");
+
+  // ما في إيميل بانتظار التحقق (زيارة مباشرة للصفحة) → رجّعه لصفحة التسجيل
+  useEffect(() => {
+    if (!email) {
+      navigate("/register/doctor", { replace: true });
+    }
+  }, [email, navigate]);
 
   useEffect(() => {
     if (!isResendDisabled) return;
@@ -52,6 +61,7 @@ const DoctorOtpVerificationPage: React.FC = () => {
 
     const ok = await verifyOtp(email, otpCode);
     if (ok) {
+      sessionStorage.removeItem("pendingDoctorOtpEmail");
       navigate("/register/doctor/under-review", {
         state: { fromOtp: true },
       });
@@ -87,6 +97,7 @@ const DoctorOtpVerificationPage: React.FC = () => {
         <br />
         <Link
           to="/register/doctor"
+          onClick={() => sessionStorage.removeItem("pendingDoctorOtpEmail")}
           className="inline-flex items-center gap-1 text-sm opacity-70 hover:opacity-100"
         >
           <ArrowLeft className="w-4 h-4" />

@@ -4,11 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   LayoutDashboard, Users, Building2, BookOpen, FlaskConical, Warehouse,
-  ClipboardList, Hospital, Megaphone, LogOut, GraduationCap, ChevronLeft,
-  Globe, Calendar, Wrench, Package, FileText, Stethoscope, UserCheck, Key
+  ClipboardList, Hospital, Megaphone, LogOut, GraduationCap, ChevronLeft, ChevronRight,
+  Globe, Calendar, Wrench, Package, FileText, Stethoscope, UserCheck, Key, UserRound,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { resolveRoleName } from '@/lib/roleUtils';
+import { getBreadcrumb } from '@/lib/dashboardNav';
 import type { RoleName } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,6 +35,9 @@ const allNavItems: NavItem[] = [
   { to: '/dashboard/colleges', icon: Building2, labelAr: 'الكليات', labelEn: 'Colleges', roles: ['admin', 'university_admin'] },
   { to: '/dashboard/departments', icon: Building2, labelAr: 'الأقسام', labelEn: 'Departments', roles: ['admin', 'university_admin'] },
   { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['admin', 'university_admin', 'academic_doctor'] },
+  { to: '/dashboard/my-subjects', icon: BookOpen, labelAr: 'موادي', labelEn: 'My Subjects', roles: ['academic_doctor'] },
+  { to: '/dashboard/lab-schedules', icon: FlaskConical, labelAr: 'جداول المخبر', labelEn: 'Lab Schedules', roles: ['lab_manager'] },
+  { to: '/dashboard/lab-students', icon: Users, labelAr: 'طلاب المخبر', labelEn: 'Lab Students', roles: ['lab_manager'] },
   { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'medical_doctor'] },
   { to: '/dashboard/laboratories', icon: FlaskConical, labelAr: 'إدارة المخابر', labelEn: 'Laboratories', roles: ['lab_technician', 'dean', 'admin', 'university_admin'] },
   { to: '/dashboard/warehouses', icon: Warehouse, labelAr: 'المستودعات', labelEn: 'Warehouses', roles: [ 'warehouse_manager'] },
@@ -78,6 +82,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     setUsersMenuOpen(location.pathname.startsWith('/dashboard/users'));
   }, [location.pathname]);
   const isExamArea = location.pathname.startsWith('/dashboard/exam-employee');
+
+  // Breadcrumb خفيف يظهر بس للصفحات المتفرعة فعلياً من صفحة أب
+  const breadcrumb = getBreadcrumb(location.pathname);
+  const BreadcrumbSeparator = lang === 'ar' ? ChevronLeft : ChevronRight;
 
   const handleLogout = async () => {
     setLogoutDialogOpen(false);
@@ -189,6 +197,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <p className="text-xs text-sidebar-foreground/60 truncate">{user.role?.label ?? user.role?.name}</p>
             </div>
           )}
+          <Link to="/dashboard/profile" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+            <UserRound className="w-5 h-5 flex-shrink-0" />
+            {!collapsed && <span>{lang === 'ar' ? 'الملف الشخصي' : 'My Profile'}</span>}
+          </Link>
           <Link to="/dashboard/change-password" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
             <Key className="w-5 h-5 flex-shrink-0" />
             {!collapsed && <span>{lang === 'ar' ? 'تغيير كلمة المرور' : 'Change Password'}</span>}
@@ -201,7 +213,30 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       </aside>
 
       <main className="flex-1 overflow-auto bg-background">
-        <div className="p-6 max-w-7xl mx-auto">{children}</div>
+        <div className="p-6 max-w-7xl mx-auto">
+          {breadcrumb.length > 0 && (
+            <nav aria-label="breadcrumb" className="flex items-center flex-wrap gap-1 mb-4 text-sm">
+              {breadcrumb.map((item, idx) => (
+                <span key={item.to} className="flex items-center gap-1">
+                  {idx > 0 && <BreadcrumbSeparator className="w-3.5 h-3.5 text-muted-foreground/50" />}
+                  {item.isCurrent ? (
+                    <span className="font-medium text-foreground">
+                      {lang === 'ar' ? item.labelAr : item.labelEn}
+                    </span>
+                  ) : (
+                    <Link
+                      to={item.to}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {lang === 'ar' ? item.labelAr : item.labelEn}
+                    </Link>
+                  )}
+                </span>
+              ))}
+            </nav>
+          )}
+          {children}
+        </div>
       </main>
 
       <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>

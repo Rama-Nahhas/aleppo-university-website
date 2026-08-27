@@ -1,91 +1,74 @@
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useExam } from '@/contexts/ExamContext';
-import { Users, FileText, ClipboardList, Calendar } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { FileText, ClipboardList, GraduationCap, Loader2 } from "lucide-react";
+import { useExamEmployeeActions } from "@/hooks/examEmployee/useApiActions";
 
 const ExamDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const isArabic = lang === "ar";
+  const { fetchSubjectsByYear } = useExamEmployeeActions();
 
-  const { subjects, promotedStudents, recentMarks } = useExam();
-  const dateFormatter = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-SY' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  const [subjectsCount, setSubjectsCount] = useState<number | null>(null);
 
-  const stats = [
-    { label: 'عدد المواد', value: subjects.length, icon: FileText, color: 'bg-primary' },
-    { label: 'عدد الطلاب', value: subjects.reduce((s,sub)=>s+sub.studentsCount,0), icon: Users, color: 'bg-emerald-500' },
-    { label: 'عدد العلامات المدخلة', value: subjects.reduce((s,sub)=>s+sub.enteredCount,0), icon: ClipboardList, color: 'bg-amber-500' },
-    { label: 'الطلاب المترفعون', value: promotedStudents.length, icon: Calendar, color: 'bg-cyan-500' },
-  ];
+  useEffect(() => {
+    const load = async () => {
+      // كل مواد قسم الموظف (بدون تحديد سنة) - رقم بسيط وصحيح، بدون تخمين إحصائيات مكلفة
+      const subjects = await fetchSubjectsByYear();
+      setSubjectsCount(subjects.length);
+    };
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">لوحة موظف الامتحانات</h1>
-          <p className="text-muted-foreground">مرحباً بك في لوحة إدارة العلامات</p>
+          <h1 className="text-2xl font-bold text-foreground">
+            {isArabic ? "لوحة موظف الامتحانات" : "Exam Employee Dashboard"}
+          </h1>
+          <p className="text-muted-foreground">
+            {isArabic ? "مرحباً بك في لوحة إدارة العلامات" : "Welcome to the grades management panel"}
+          </p>
         </div>
-        <div className="text-sm text-muted-foreground">{new Date().toLocaleDateString(lang === 'ar' ? 'ar-SY' : 'en-US')}</div>
+        <div className="text-sm text-muted-foreground">
+          {new Date().toLocaleDateString(isArabic ? "ar-SY" : "en-US")}
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map(s => (
-          <Card key={s.label} className="border-0 shadow-sm">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className={`w-11 h-11 ${s.color} rounded-xl flex items-center justify-center shadow-sm`}>
-                <s.icon className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-bold">{s.label}</p>
-                <p className="text-sm text-muted-foreground">{s.value}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card className="border-0 shadow-sm max-w-xs">
+        <CardContent className="p-4 flex items-center gap-4">
+          <div className="w-11 h-11 bg-primary rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+            <FileText className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-sm font-bold">{isArabic ? "عدد المواد" : "Subjects"}</p>
+            <p className="text-sm text-muted-foreground">
+              {subjectsCount === null ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : subjectsCount}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="space-y-3">
-        <h2 className="text-lg font-bold">العمليات السريعة</h2>
+        <h2 className="text-lg font-bold">{isArabic ? "العمليات السريعة" : "Quick Actions"}</h2>
         <div className="flex gap-2 flex-wrap">
-          <button type="button" onClick={() => navigate('/dashboard/exam-employee/subjects')} className="btn btn-primary">عرض المواد</button>
-          <button
-            type="button"
-            onClick={() => navigate('/dashboard/exam-employee/enter-grades', { state: { subjectId: subjects[0]?.id } })}
-            className="btn btn-secondary"
-            disabled={subjects.length === 0}
+          <Button className="gap-1.5" onClick={() => navigate("/dashboard/exam-employee/subjects")}>
+            <ClipboardList className="w-4 h-4" />
+            {isArabic ? "عرض المواد وإدخال العلامات" : "View Subjects & Enter Grades"}
+          </Button>
+          <Button
+            variant="outline"
+            className="gap-1.5"
+            onClick={() => navigate("/dashboard/exam-employee/promoted")}
           >
-            إدخال العلامات
-          </button>
-          <button type="button" onClick={() => navigate('/dashboard/exam-employee/promoted')} className="btn btn-accent">عرض الطلاب المترفعين</button>
-        </div>
-      </div>
-
-      <div>
-        <h2 className="text-lg font-bold mb-3">آخر العلامات المدخلة</h2>
-        <div className="overflow-auto bg-card p-3 rounded-lg">
-          <table className="w-full text-sm table-auto">
-            <thead>
-              <tr className="text-muted-foreground text-left">
-                <th className="p-2">اسم الطالب</th>
-                <th className="p-2">المادة</th>
-                <th className="p-2">العلامة</th>
-                <th className="p-2">تاريخ الإدخال</th>
-                <th className="p-2">الحالة</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentMarks.map((r,idx) => (
-                <tr key={idx} className="border-t">
-                  <td className="p-2">{r.studentName}</td>
-                  <td className="p-2">{r.subject}</td>
-                  <td className="p-2">{r.mark}</td>
-                  <td className="p-2" dir="ltr" style={{whiteSpace: 'nowrap'}}>{dateFormatter.format(new Date(r.enteredAt))}</td>
-                  <td className="p-2">{r.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <GraduationCap className="w-4 h-4" />
+            {isArabic ? "الطلاب المترفعون" : "Promoted Students"}
+          </Button>
         </div>
       </div>
     </div>
