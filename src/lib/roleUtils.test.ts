@@ -13,4 +13,10 @@ describe('resolveRoleName', () => {
   it('returns student when the user has role_name', () => {
     expect(resolveRoleName({ role_name: 'student' } as any)).toBe('student');
   });
+
+  it('resolves subadmin aliases to university_admin', () => {
+    expect(resolveRoleName({ role_name: 'subadmin' } as any)).toBe('university_admin');
+    expect(resolveRoleName({ role_name: 'sub_admin' } as any)).toBe('university_admin');
+    expect(resolveRoleName({ role_name: 'sub-admin' } as any)).toBe('university_admin');
+  });
 });

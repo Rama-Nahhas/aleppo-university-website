@@ -55,7 +55,9 @@ export const resolveRoleName = (user: RoleLikeUser | null | undefined): RoleName
       'exam_employee': 'exam_employee',
       'exam-employee': 'exam_employee',
       'examemployee': 'exam_employee',
-      'university_admin': 'university_admin',
+      // 'university_admin': 'university_admin',
+      'subadmin': 'university_admin',
+      'sub_admin': 'university_admin',
     };
 
     if (normalized in synonyms) return synonyms[normalized];

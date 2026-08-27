@@ -32,13 +32,13 @@ interface NavItem {
 const allNavItems: NavItem[] = [
   { to: '/dashboard', icon: LayoutDashboard, labelAr: 'لوحة التحكم', labelEn: 'Dashboard' },
   // Admin
-  { to: '/dashboard/colleges', icon: Building2, labelAr: 'الكليات', labelEn: 'Colleges', roles: ['admin', 'university_admin'] },
-  { to: '/dashboard/departments', icon: Building2, labelAr: 'الأقسام', labelEn: 'Departments', roles: ['admin', 'university_admin'] },
+  { to: '/dashboard/colleges', icon: Building2, labelAr: 'الكليات', labelEn: 'Colleges', roles: ['admin'] },
+  { to: '/dashboard/departments', icon: Building2, labelAr: 'الأقسام', labelEn: 'Departments', roles: ['admin'] },
   { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['admin', 'university_admin', 'academic_doctor'] },
   { to: '/dashboard/my-subjects', icon: BookOpen, labelAr: 'موادي', labelEn: 'My Subjects', roles: ['academic_doctor'] },
   { to: '/dashboard/lab-schedules', icon: FlaskConical, labelAr: 'جداول المخبر', labelEn: 'Lab Schedules', roles: ['lab_manager'] },
   { to: '/dashboard/lab-students', icon: Users, labelAr: 'طلاب المخبر', labelEn: 'Lab Students', roles: ['lab_manager'] },
-  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'medical_doctor'] },
+  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'university_admin'] },
   { to: '/dashboard/laboratories', icon: FlaskConical, labelAr: 'إدارة المخابر', labelEn: 'Laboratories', roles: ['lab_technician', 'dean', 'admin', 'university_admin'] },
   { to: '/dashboard/warehouses', icon: Warehouse, labelAr: 'المستودعات', labelEn: 'Warehouses', roles: [ 'warehouse_manager'] },
   { to: '/dashboard/orders', icon: ClipboardList, labelAr: 'الطلبات', labelEn: 'Orders', roles: [ 'warehouse_manager', 'lab_technician'] },
@@ -56,8 +56,8 @@ const allNavItems: NavItem[] = [
   // Staff
   { to: '/dashboard/students', icon: Users, labelAr: 'إدارة الطلاب', labelEn: 'Manage Students', roles: ['employee'] },
   // Hospital for doctor
-  { to: '/dashboard/appointments', icon: Stethoscope, labelAr: 'المواعيد', labelEn: 'Appointments', roles: ['medical_doctor', 'nurse'] },
-  { to: '/dashboard/patients', icon: Users, labelAr: 'المرضى', labelEn: 'Patients', roles: ['medical_doctor', 'nurse'] },
+  // { to: '/dashboard/appointments', icon: Stethoscope, labelAr: 'المواعيد', labelEn: 'Appointments', roles: ['medical_doctor', 'nurse'] },
+  // { to: '/dashboard/patients', icon: Users, labelAr: 'المرضى', labelEn: 'Patients', roles: ['medical_doctor', 'nurse'] },
   //Dean
 
 ];
@@ -115,13 +115,59 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           <ChevronLeft className={cn("w-3.5 h-3.5 transition-transform", collapsed && "rotate-180", lang === 'en' && !collapsed && "rotate-180", lang === 'en' && collapsed && "rotate-0")} />
         </button>
 
+
+         {navItems.map(item => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/dashboard'}
+              className={({ isActive }) => cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                isActive ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              )}
+            >
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && <span className="truncate">{lang === 'ar' ? item.labelAr : item.labelEn}</span>}
+            </NavLink>
+          ))}
+
+
+
         <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
           {/* Users management collapsible menu */}
-          {(!collapsed && ['admin','university_admin','employee'].includes(roleName || '')) && (
+
+            {(!collapsed && ['university_admin'].includes(roleName || '')) && (
             <div>
               <button
                 onClick={() => setUsersMenuOpen(v => !v)}
-                className={cn("w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors", usersMenuOpen ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}
+                className={cn("w-full flex items-center justify-between gap-3 px-1 py-2.5 rounded-lg text-sm font-medium transition-colors", usersMenuOpen ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}
+              >
+                <div className="flex items-center gap-3">
+                  <Users className="w-5 h-5 flex-shrink-0" />
+                  <span className="truncate">{lang === 'ar' ? 'إدارة المستخدمين' : 'Manage Users'}</span>
+                </div>
+                <span className="text-xs opacity-70">{usersMenuOpen ? '▾' : '▸'}</span>
+              </button>
+              {usersMenuOpen && (
+                <div className="mt-1 space-y-1 pr-2">
+                  <NavLink to="/dashboard/users/doctor-requests" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>{/* rtl handled by parent */}
+                    <span className="mr-1">{lang === 'ar' ? 'طلبات الدكاترة  المدرسين' : 'Doctor Requests'}</span>
+                  </NavLink>
+                  <NavLink to="/dashboard/users/active-doctors" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                    <span className="mr-1">{lang === 'ar' ? 'الدكاترة  المدرسين النشطون' : 'Active Doctors'}</span>
+                  </NavLink>
+                  <NavLink to="/dashboard/users/students" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                    <span className="mr-1">{lang === 'ar' ? 'الطلاب' : 'Students'}</span>
+                  </NavLink>
+                </div>
+              )}
+            </div>
+          )}
+          {(!collapsed && ['admin','employee'].includes(roleName || '')) && (
+            <div>
+              <button
+                onClick={() => setUsersMenuOpen(v => !v)}
+                className={cn("w-full flex items-center justify-between gap-3 px-1 py-2.5 rounded-lg text-sm font-medium transition-colors", usersMenuOpen ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}
               >
                 <div className="flex items-center gap-3">
                   <Users className="w-5 h-5 flex-shrink-0" />
@@ -148,21 +194,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             </div>
           )}
 
-          {navItems.map(item => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/dashboard'}
-              className={({ isActive }) => cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                isActive ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span className="truncate">{lang === 'ar' ? item.labelAr : item.labelEn}</span>}
-            </NavLink>
-          ))}
-
+         
           {roleName === 'exam_employee' && (
             <div className="mt-2">
               <div className="px-3 py-1 text-xs text-sidebar-foreground/60">موظف الامتحانات</div>
