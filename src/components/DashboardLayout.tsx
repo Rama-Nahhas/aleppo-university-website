@@ -5,7 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import {
   LayoutDashboard, Users, Building2, BookOpen, FlaskConical, Warehouse,
   ClipboardList, Hospital, Megaphone, LogOut, GraduationCap, ChevronLeft, ChevronRight,
-  Globe, Calendar, Wrench, Package, FileText, Stethoscope, UserCheck, Key, UserRound,
+  Globe, Calendar, Wrench, Package, FileText, Stethoscope, UserCheck, Key, UserRound, Library,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { resolveRoleName } from '@/lib/roleUtils';
@@ -38,7 +38,7 @@ const allNavItems: NavItem[] = [
   { to: '/dashboard/my-subjects', icon: BookOpen, labelAr: 'موادي', labelEn: 'My Subjects', roles: ['academic_doctor'] },
   { to: '/dashboard/lab-schedules', icon: FlaskConical, labelAr: 'جداول المخبر', labelEn: 'Lab Schedules', roles: ['lab_manager'] },
   { to: '/dashboard/lab-students', icon: Users, labelAr: 'طلاب المخبر', labelEn: 'Lab Students', roles: ['lab_manager'] },
-  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'university_admin'] },
+  { to: '/dashboard/announcements', icon: Megaphone, labelAr: 'الإعلانات', labelEn: 'Announcements', roles: ['student', 'academic_doctor', 'admin', 'university_admin'] },
   { to: '/dashboard/laboratories', icon: FlaskConical, labelAr: 'إدارة المخابر', labelEn: 'Laboratories', roles: ['lab_technician', 'dean', 'admin', 'university_admin'] },
   { to: '/dashboard/warehouses', icon: Warehouse, labelAr: 'المستودعات', labelEn: 'Warehouses', roles: [ 'warehouse_manager'] },
   { to: '/dashboard/orders', icon: ClipboardList, labelAr: 'الطلبات', labelEn: 'Orders', roles: [ 'warehouse_manager', 'lab_technician'] },
@@ -46,6 +46,7 @@ const allNavItems: NavItem[] = [
   // Student
   { to: '/dashboard/my-courses', icon: BookOpen, labelAr: 'مقرراتي', labelEn: 'My Courses', roles: ['student'] },
   { to: '/dashboard/my-grades', icon: FileText, labelAr: 'علاماتي', labelEn: 'My Grades', roles: ['student'] },
+  { to: '/dashboard/browse-materials', icon: Library, labelAr: 'تصفح المواد والملفات', labelEn: 'Browse Materials', roles: ['student'] },
   { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['student'] },
   
   // Doctor
@@ -115,8 +116,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           <ChevronLeft className={cn("w-3.5 h-3.5 transition-transform", collapsed && "rotate-180", lang === 'en' && !collapsed && "rotate-180", lang === 'en' && collapsed && "rotate-0")} />
         </button>
 
-
-         {navItems.map(item => (
+        <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto sidebar-scroll">
+          {navItems.map(item => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -131,9 +132,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             </NavLink>
           ))}
 
-
-
-        <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
           {/* Users management collapsible menu */}
 
             {(!collapsed && ['university_admin'].includes(roleName || '')) && (
@@ -158,6 +156,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                   </NavLink>
                   <NavLink to="/dashboard/users/students" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
                     <span className="mr-1">{lang === 'ar' ? 'الطلاب' : 'Students'}</span>
+                  </NavLink>
+                  <NavLink to="/dashboard/users/blocked" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                    <span className="mr-1">{lang === 'ar' ? 'المستخدمون المحظورون' : 'Blocked Users'}</span>
                   </NavLink>
                 </div>
               )}
@@ -188,6 +189,14 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                   </NavLink>
                   <NavLink to="/dashboard/users/others" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
                     <span className="mr-1">المستخدمون الآخرون</span>
+                  </NavLink>
+                  {roleName === 'admin' && (
+                    <NavLink to="/dashboard/users/sub-admins" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                      <span className="mr-1">المشرفون</span>
+                    </NavLink>
+                  )}
+                  <NavLink to="/dashboard/users/blocked" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium", isActive ? "bg-sidebar-primary text-white shadow-md" : "text-sidebar-foreground/60 hover:bg-sidebar-accent/10")}>
+                    <span className="mr-1">المستخدمون المحظورون</span>
                   </NavLink>
                 </div>
               )}

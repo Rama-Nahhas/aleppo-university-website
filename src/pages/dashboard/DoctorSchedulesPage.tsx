@@ -25,6 +25,7 @@ const DoctorSchedulesPage: React.FC = () => {
     createSchedule,
     updateSchedule,
     deleteSchedule,
+    canChangeDepartment,
     loading,
   } = useScheduleAdminActions();
   const { fetchDepartments } = useCollegeLookups();
@@ -36,6 +37,7 @@ const DoctorSchedulesPage: React.FC = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState({ department_id: '', year_id: '' });
   const [createImage, setCreateImage] = useState<File | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const [editing, setEditing] = useState<AdminSchedule | null>(null);
@@ -55,7 +57,10 @@ const DoctorSchedulesPage: React.FC = () => {
 
   useEffect(() => {
     loadSchedules();
-    fetchDepartments(COLLEGE_ID).then(setDepartments);
+    if (canChangeDepartment) {
+      fetchDepartments(COLLEGE_ID).then(setDepartments);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const notifySuccess = (description: string) => {
@@ -77,16 +82,25 @@ const DoctorSchedulesPage: React.FC = () => {
   const openCreate = () => {
     setCreateForm({ department_id: '', year_id: '' });
     setCreateImage(null);
+    setFormError(null);
     setCreateOpen(true);
   };
 
   const handleCreate = async () => {
-    if (!createForm.department_id || !createForm.year_id || !createImage) return;
+    setFormError(null);
+    if (!createForm.year_id || !createImage) {
+      setFormError(lang === 'ar' ? 'الرجاء اختيار السنة وصورة الجدول' : 'Please select a year and a schedule image');
+      return;
+    }
+    if (canChangeDepartment && !createForm.department_id) {
+      setFormError(lang === 'ar' ? 'الرجاء اختيار القسم' : 'Please select a department');
+      return;
+    }
     setSaving(true);
     const ok = await createSchedule(
-      Number(createForm.department_id),
       Number(createForm.year_id),
       createImage,
+      canChangeDepartment && createForm.department_id ? Number(createForm.department_id) : undefined,
     );
     setSaving(false);
     if (ok) {
@@ -94,7 +108,7 @@ const DoctorSchedulesPage: React.FC = () => {
       notifySuccess(lang === 'ar' ? 'تم إضافة الجدول بنجاح' : 'Schedule added successfully');
       await loadSchedules();
     } else {
-      notifyError(lang === 'ar' ? 'حدث خطأ أثناء إضافة الجدول' : 'Failed to add schedule');
+      setFormError(lang === 'ar' ? 'حدث خطأ أثناء إضافة الجدول' : 'Failed to add schedule');
     }
   };
 
@@ -102,10 +116,12 @@ const DoctorSchedulesPage: React.FC = () => {
     setEditing(s);
     setEditActive(s.is_active);
     setEditImage(null);
+    setFormError(null);
   };
 
   const handleEditSave = async () => {
     if (!editing) return;
+    setFormError(null);
     setSaving(true);
     const ok = await updateSchedule(editing.id, editActive, editImage ?? undefined);
     setSaving(false);
@@ -114,7 +130,7 @@ const DoctorSchedulesPage: React.FC = () => {
       notifySuccess(lang === 'ar' ? 'تم تعديل الجدول بنجاح' : 'Schedule updated successfully');
       await loadSchedules();
     } else {
-      notifyError(lang === 'ar' ? 'حدث خطأ أثناء تعديل الجدول' : 'Failed to update schedule');
+      setFormError(lang === 'ar' ? 'حدث خطأ أثناء تعديل الجدول' : 'Failed to update schedule');
     }
   };
 
@@ -187,15 +203,17 @@ const DoctorSchedulesPage: React.FC = () => {
         <DialogContent dir={lang === 'ar' ? 'rtl' : 'ltr'}>
           <DialogHeader><DialogTitle>{lang === 'ar' ? 'إضافة جدول' : 'Add Schedule'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div>
-              <Label>{lang === 'ar' ? 'القسم' : 'Department'}</Label>
-              <Select value={createForm.department_id} onValueChange={v => setCreateForm(f => ({ ...f, department_id: v }))}>
-                <SelectTrigger><SelectValue placeholder={lang === 'ar' ? 'اختر القسم' : 'Select Department'} /></SelectTrigger>
-                <SelectContent>
-                  {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            {canChangeDepartment && (
+              <div>
+                <Label>{lang === 'ar' ? 'القسم' : 'Department'}</Label>
+                <Select value={createForm.department_id} onValueChange={v => setCreateForm(f => ({ ...f, department_id: v }))}>
+                  <SelectTrigger><SelectValue placeholder={lang === 'ar' ? 'اختر القسم' : 'Select Department'} /></SelectTrigger>
+                  <SelectContent>
+                    {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div>
               <Label>{lang === 'ar' ? 'السنة' : 'Year'}</Label>
               <Select value={createForm.year_id} onValueChange={v => setCreateForm(f => ({ ...f, year_id: v }))}>
@@ -210,6 +228,7 @@ const DoctorSchedulesPage: React.FC = () => {
               <Input type="file" accept="image/*" onChange={e => setCreateImage(e.target.files?.[0] ?? null)} />
             </div>
           </div>
+          {formError && <p className="text-sm text-destructive font-medium">{formError}</p>}
           <DialogFooter>
             <Button onClick={handleCreate} disabled={saving || loading}>
               {saving ? (lang === 'ar' ? 'جاري الإضافة...' : 'Adding...') : (lang === 'ar' ? 'إضافة' : 'Add')}
@@ -238,6 +257,7 @@ const DoctorSchedulesPage: React.FC = () => {
               <Input type="file" accept="image/*" onChange={e => setEditImage(e.target.files?.[0] ?? null)} />
             </div>
           </div>
+          {formError && <p className="text-sm text-destructive font-medium">{formError}</p>}
           <DialogFooter>
             <Button onClick={handleEditSave} disabled={saving || loading}>
               {saving ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'تحديث' : 'Update')}

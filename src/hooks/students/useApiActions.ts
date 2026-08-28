@@ -3,6 +3,15 @@ import { AxiosError } from "axios";
 import apiClient from "@/lib/axios";
 import type { UserData } from "@/hooks/useAuthActions";
 
+export interface SubjectFile {
+  id: number;
+  name: string;
+  file_name: string;
+  url: string;
+  mime_type: string;
+  size: number;
+}
+
 export interface Subject {
   subject_id: number;
   subject_name: string;
@@ -10,6 +19,7 @@ export interface Subject {
   mark: number | null;
   is_success: boolean | null;
   note: string | null;
+  files: SubjectFile[];
 }
 
 interface StudentSubjectsResponse {
@@ -41,6 +51,54 @@ export const useSubjectActions = () => {
   };
 
   return { fetchStudentSubjects, loading, error };
+};
+
+/** ملف مرفق بصيغة Spatie Media الخام (زي ما يرجعها /subjects/files) */
+export interface RawSubjectMedia {
+  id: number;
+  name: string;
+  file_name: string;
+  mime_type: string;
+  size: number;
+  original_url: string;
+}
+
+export interface AllSubjectItem {
+  id: number;
+  department_id: number;
+  year_id: number;
+  name: string;
+  department: { id: number; name: string };
+  year: { id: number; name: string };
+  doctor: { id: number; name: string } | null;
+  media: RawSubjectMedia[];
+}
+
+interface AllSubjectsResponse {
+  status: string;
+  data: AllSubjectItem[];
+}
+
+/** تصفح كل مواد الموقع (كل الأقسام والسنين) لتحميل محاضرات إضافية - مسار عام */
+export const useBrowseSubjects = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAllSubjects = async (): Promise<AllSubjectItem[]> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiClient.get<AllSubjectsResponse>("/subjects/files");
+      return response.data.data;
+    } catch (err) {
+      setError("حدث خطأ أثناء جلب المواد.");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { fetchAllSubjects, loading, error };
 };
 
 export interface Schedule {

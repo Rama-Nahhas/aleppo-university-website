@@ -18,6 +18,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { UserCheck, Check, X, Loader2, Inbox } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -39,6 +41,7 @@ const DoctorRequestsPage: React.FC = () => {
   const [loaded, setLoaded] = useState(false);
   const [actingId, setActingId] = useState<number | null>(null);
   const [rejectTarget, setRejectTarget] = useState<PendingDoctor | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
   const [rejecting, setRejecting] = useState(false);
 
   const { page, setPage, totalPages, paginated } = usePagination(
@@ -89,12 +92,13 @@ const DoctorRequestsPage: React.FC = () => {
   };
 
   const handleConfirmReject = async () => {
-    if (!rejectTarget) return;
+    if (!rejectTarget || rejectReason.trim().length < 5) return;
     setRejecting(true);
-    const ok = await rejectDoctor(rejectTarget.id);
+    const ok = await rejectDoctor(rejectTarget.id, rejectReason.trim());
     setRejecting(false);
     if (ok) {
       setRejectTarget(null);
+      setRejectReason("");
       notifySuccess(
         lang === "ar" ? "تم رفض الطلب بنجاح" : "Request rejected successfully",
       );
@@ -170,7 +174,10 @@ const DoctorRequestsPage: React.FC = () => {
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => setRejectTarget(d)}
+                          onClick={() => {
+                            setRejectTarget(d);
+                            setRejectReason("");
+                          }}
                           disabled={loading}
                         >
                           <X className="w-4 h-4 ml-1" />
@@ -208,6 +215,15 @@ const DoctorRequestsPage: React.FC = () => {
                 : `Are you sure you want to reject "${rejectTarget?.name}"'s request?`}
             </DialogDescription>
           </DialogHeader>
+          <div className="space-y-1.5">
+            <Label htmlFor="reject-reason">{lang === "ar" ? "سبب الرفض" : "Rejection Reason"}</Label>
+            <Textarea
+              id="reject-reason"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder={lang === "ar" ? "اكتب سبب الرفض (5 أحرف على الأقل)" : "Write the rejection reason (min 5 characters)"}
+            />
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejectTarget(null)}>
               {lang === "ar" ? "إلغاء" : "Cancel"}
@@ -215,7 +231,7 @@ const DoctorRequestsPage: React.FC = () => {
             <Button
               variant="destructive"
               onClick={handleConfirmReject}
-              disabled={rejecting}
+              disabled={rejecting || rejectReason.trim().length < 5}
             >
               {rejecting
                 ? lang === "ar"

@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { BookOpen, Loader2, Inbox, FlaskConical, Clock, Users, CheckCircle2 } from "lucide-react";
+import { BookOpen, Loader2, Inbox, FlaskConical, Clock, Users, CheckCircle2, Paperclip, FileText, Download } from "lucide-react";
 import {
   Subject,
   LabScheduleOption,
@@ -42,6 +42,15 @@ const MyCoursesPage: React.FC = () => {
   const [schedules, setSchedules] = useState<LabScheduleOption[]>([]);
   const [myRegistrationId, setMyRegistrationId] = useState<number | null>(null);
   const [actingScheduleId, setActingScheduleId] = useState<number | null>(null);
+
+  // نافذة الملفات المرفقة
+  const [filesDialogSubject, setFilesDialogSubject] = useState<Subject | null>(null);
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -149,15 +158,29 @@ const MyCoursesPage: React.FC = () => {
                         {s.note}
                       </p>
                     )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5 mt-3"
-                      onClick={() => openLabDialog(s)}
-                    >
-                      <FlaskConical className="w-3.5 h-3.5" />
-                      {isArabic ? "تسجيل على مخبر" : "Register for Lab"}
-                    </Button>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5"
+                        onClick={() => openLabDialog(s)}
+                      >
+                        <FlaskConical className="w-3.5 h-3.5" />
+                        {isArabic ? "تسجيل على مخبر" : "Register for Lab"}
+                      </Button>
+                      {s.files.length > 0 && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5"
+                          onClick={() => setFilesDialogSubject(s)}
+                        >
+                          <Paperclip className="w-3.5 h-3.5" />
+                          {isArabic ? "الملفات المرفقة" : "Attached Files"}
+                          <Badge variant="secondary" className="ms-1 px-1.5">{s.files.length}</Badge>
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -261,6 +284,41 @@ const MyCoursesPage: React.FC = () => {
               })}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* نافذة الملفات المرفقة */}
+      <Dialog open={!!filesDialogSubject} onOpenChange={(open) => !open && setFilesDialogSubject(null)}>
+        <DialogContent className="max-w-md" dir={isArabic ? "rtl" : "ltr"}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Paperclip className="w-4 h-4" />
+              {isArabic ? "الملفات المرفقة" : "Attached Files"}
+            </DialogTitle>
+            <DialogDescription>{filesDialogSubject?.subject_name}</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            {filesDialogSubject?.files.map((file) => (
+              <a
+                key={file.id}
+                href={file.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                download={file.file_name}
+                className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              >
+                <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-4.5 h-4.5 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                </div>
+                <Download className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              </a>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

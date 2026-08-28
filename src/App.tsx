@@ -144,6 +144,8 @@ import UsersManagementOverview from "@/pages/dashboard/UsersManagementOverview";
 import DoctorRequestsPage from "@/pages/dashboard/DoctorRequestsPage";
 import ActiveDoctorsPage from "@/pages/dashboard/ActiveDoctorsPage";
 import OtherUsersPage from "@/pages/dashboard/OtherUsersPage";
+import BlockedUsersPage from "@/pages/dashboard/BlockedUsersPage";
+import SubAdminsPage from "@/pages/dashboard/SubAdminsPage";
 import CollegesPage from "@/pages/CollegesPage";
 import DepartmentsPage from "@/pages/DepartmentsPage";
 import CoursesPage from "@/pages/CoursesPage";
@@ -160,6 +162,7 @@ import EventsPage from "@/pages/public/EventsPage";
 import ContactPage from "@/pages/public/ContactPage";
 import MyCoursesPage from "@/pages/dashboard/MyCoursesPage";
 import MySubjectsPage from "@/pages/dashboard/MySubjectsPage";
+import BrowseMaterialsPage from "@/pages/dashboard/BrowseMaterialsPage";
 import LabSchedulesPage from "@/pages/dashboard/LabSchedulesPage";
 import LabStudentsPage from "@/pages/dashboard/LabStudentsPage";
 import MyGradesPage from "@/pages/dashboard/MyGradesPage";
@@ -341,6 +344,22 @@ const AppRoutes = () => (
       }
     />
     <Route
+      path="/dashboard/users/blocked"
+      element={
+        <ProtectedRoute>
+          <BlockedUsersPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/dashboard/users/sub-admins"
+      element={
+        <ProtectedRoute>
+          <SubAdminsPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
       path="/dashboard/colleges"
       element={
         <ProtectedRoute>
@@ -419,6 +438,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <MyGradesPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/dashboard/browse-materials"
+      element={
+        <ProtectedRoute>
+          <BrowseMaterialsPage />
         </ProtectedRoute>
       }
     />

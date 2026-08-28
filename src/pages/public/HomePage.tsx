@@ -1,15 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { newsEvents, colleges, announcements } from '@/data/mockData';
 import { GraduationCap, Calendar , BookOpen, Users, FlaskConical, Building2, ArrowLeft, ArrowRight, Star, Award, Globe } from 'lucide-react';
+import { Announcement, useAnnouncementActions } from '@/hooks/useAnnouncementActions';
 
 
 const HomePage: React.FC = () => {
   const { lang, t } = useLanguage();
   const Arrow = lang === 'ar' ? ArrowLeft : ArrowRight;
+
+  // شريط الإعلانات المتحرك - من /public-announcements الحقيقي
+  const { fetchPublicAnnouncements } = useAnnouncementActions();
+  const [tickerAnnouncements, setTickerAnnouncements] = useState<Announcement[]>([]);
+
+  useEffect(() => {
+    const loadAnnouncements = async () => {
+      setTickerAnnouncements(await fetchPublicAnnouncements());
+    };
+    void loadAnnouncements();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const quickStats = [
     { icon: Building2, value: '18+', label: lang === 'ar' ? 'كلية ومعهد' : 'Colleges & Institutes' },
@@ -47,21 +60,21 @@ const HomePage: React.FC = () => {
       </section>
 
 
-{(() => {
+{tickerAnnouncements.length > 0 && (() => {
   // نضمن أن عدد العناصر كافٍ لملء الشاشة دائماً
   // الحل: نكرر حتى نصل لـ 16 عنصر على الأقل، ثم نضاعف للـ seamless loop
   const minVisible = 4;
-  const repeatCount = Math.ceil(minVisible / newsEvents.length);
-  const singleSet = Array.from({ length: repeatCount }, () => newsEvents).flat();
+  const repeatCount = Math.ceil(minVisible / tickerAnnouncements.length);
+  const singleSet = Array.from({ length: repeatCount }, () => tickerAnnouncements).flat();
   // نضاعف مرة واحدة للـ seamless loop (النسخة الأولى + نسخة مطابقة)
   const allItems = [...singleSet, ...singleSet];
 
   return (
     <div className="ticker-wrap">
       <div className="ticker">
-        {allItems.map((event, index) => (
+        {allItems.map((item, index) => (
           <span key={index} className="ticker-item">
-            ✦ {lang === 'ar' ? event.title : event.titleEn}
+            ✦ {item.title}
           </span>
         ))}
       </div>
