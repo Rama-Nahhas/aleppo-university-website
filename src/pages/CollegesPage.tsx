@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Pencil, Trash2, Eye, Building2, Loader2, Inbox } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, Building2, Loader2, Inbox, Search, X } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { usePagination } from '@/hooks/usePagination';
@@ -35,6 +35,7 @@ const CollegesPage: React.FC = () => {
 
   const [data, setData] = useState<AdminCollege[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminCollege | null>(null);
@@ -47,7 +48,10 @@ const CollegesPage: React.FC = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [details, setDetails] = useState<CollegeDetails | null>(null);
 
-  const { page, setPage, totalPages, paginated } = usePagination(data, PAGE_SIZE);
+  const filteredData = data.filter(college =>
+    college.name.toLocaleLowerCase().includes(searchTerm.trim().toLocaleLowerCase()),
+  );
+  const { page, setPage, totalPages, paginated } = usePagination(filteredData, PAGE_SIZE);
 
   const loadColleges = async () => {
     const result = await fetchColleges();
@@ -139,12 +143,46 @@ const CollegesPage: React.FC = () => {
         </Button>
       </div>
 
+      {loaded && data.length > 0 && (
+        <div className="relative max-w-md">
+          <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={searchTerm}
+            onChange={event => {
+              setSearchTerm(event.target.value);
+              setPage(1);
+            }}
+            placeholder={lang === 'ar' ? 'ابحث باسم الكلية...' : 'Search by college name...'}
+            aria-label={lang === 'ar' ? 'البحث عن كلية' : 'Search colleges'}
+            className="h-11 ps-10 pe-10"
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchTerm('');
+                setPage(1);
+              }}
+              aria-label={lang === 'ar' ? 'مسح البحث' : 'Clear search'}
+              className="absolute end-3 top-1/2 -translate-y-1/2 rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      )}
+
       {!loaded ? (
         <Loader2 className="animate-spin" />
       ) : data.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
           <Inbox className="w-10 h-10" />
           <p className="text-sm">{lang === 'ar' ? 'لا توجد كليات متاحة حالياً' : 'No colleges available yet'}</p>
+        </div>
+      ) : filteredData.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+          <Search className="h-10 w-10" />
+          <p className="text-sm">{lang === 'ar' ? 'لا توجد كلية تطابق البحث' : 'No colleges match your search'}</p>
         </div>
       ) : (
         <Card className="border-0 shadow-sm"><CardContent className="p-0">

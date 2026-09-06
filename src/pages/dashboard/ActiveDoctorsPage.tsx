@@ -408,7 +408,7 @@ const ActiveDoctorsPage: React.FC = () => {
                 </Select>
               </div>
             )}
-            <div className="space-y-1.5">
+            {/* <div className="space-y-1.5">
               <Label>{isArabic ? "قسم المستشفى (اختياري)" : "Hospital Department (optional)"}</Label>
               <Select value={form.hospital_department_id} onValueChange={(v) => setForm((f) => ({ ...f, hospital_department_id: v }))}>
                 <SelectTrigger>
@@ -420,7 +420,7 @@ const ActiveDoctorsPage: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
             <div className="space-y-1.5">
               <Label>{isArabic ? "الاختصاص" : "Specialization"}</Label>
               <Input value={form.specialization} onChange={(e) => setForm((f) => ({ ...f, specialization: e.target.value }))} />
@@ -487,7 +487,7 @@ const ActiveDoctorsPage: React.FC = () => {
                 </Select>
               </div>
             )}
-            <div className="space-y-1.5">
+            {/* <div className="space-y-1.5">
               <Label>{isArabic ? "قسم المستشفى" : "Hospital Department"}</Label>
               <Select value={editForm.hospital_department_id} onValueChange={(v) => setEditForm((f) => ({ ...f, hospital_department_id: v }))}>
                 <SelectTrigger>
@@ -499,7 +499,7 @@ const ActiveDoctorsPage: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
             <div className="space-y-1.5">
               <Label>{isArabic ? "الاختصاص" : "Specialization"}</Label>
               <Input value={editForm.specialization} onChange={(e) => setEditForm((f) => ({ ...f, specialization: e.target.value }))} />
@@ -543,7 +543,7 @@ const ActiveDoctorsPage: React.FC = () => {
               <p>{isArabic ? "الاسم: " : "Name: "}<strong>{viewTarget.name}</strong></p>
               <p>{isArabic ? "البريد: " : "Email: "}{viewTarget.email}</p>
               <p>{isArabic ? "القسم: " : "Department: "}{departmentName(viewTarget.department_id)}</p>
-              <p>{isArabic ? "قسم المستشفى: " : "Hospital Dept: "}{hospitalDepartmentName(viewTarget.hospital_department_id)}</p>
+              {/* <p>{isArabic ? "قسم المستشفى: " : "Hospital Dept: "}{hospitalDepartmentName(viewTarget.hospital_department_id)}</p> */}
               <p>{isArabic ? "الاختصاص: " : "Specialization: "}{viewTarget.specialization ?? "-"}</p>
               <p>{isArabic ? "الجامعة: " : "University: "}{viewTarget.university ?? "-"}</p>
               <p>{isArabic ? "سنة التخرج: " : "Graduation Year: "}{viewTarget.graduation_year ?? "-"}</p>

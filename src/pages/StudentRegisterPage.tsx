@@ -25,7 +25,7 @@ import {
   Building,
   Bookmark,
   UserPlus,
-  MapPin,   
+  MapPin,
   FileCheck,
   User,
 } from "lucide-react";
@@ -109,36 +109,36 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-   
-    <div 
-    className="min-h-screen flex flex-col bg-[#06266d] relative overflow-hidden"
+
+    <div
+      className="min-h-screen flex flex-col relative overflow-hidden"
       dir={lang === "ar" ? "rtl" : "ltr"}
     >
       {/* Top buttons */}
-           <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate('/login')}
-                    className="gap-1 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    { lang === "ar" ? 'العودة' : 'Back'}
-                  </Button>
-          
-                  <Button variant="ghost" size="sm" onClick={toggleLang} className="gap-1 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm">
-                    <Globe className="w-4 h-4" />
-                    {lang === "ar" ? "English" : "العربية"}
-                  </Button>
-                </div>
+      <div dir="ltr" className="absolute top-4 left-4 right-4 flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/login')}
+          className="gap-2 border border-[#d9a928]/70 bg-[#0b1e48] text-white shadow-md transition-all duration-200 hover:border-[#d9a928] hover:bg-[#d9a928] hover:text-[#0b1e48] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d9a928] focus-visible:ring-offset-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          {lang === "ar" ? 'العودة' : 'Back'}
+        </Button>
+
+        <Button variant="ghost" size="sm" onClick={toggleLang} className="gap-2 border border-[#d9a928]/70 bg-[#0b1e48] text-white shadow-md transition-all duration-200 hover:border-[#d9a928] hover:bg-[#d9a928] hover:text-[#0b1e48] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d9a928] focus-visible:ring-offset-2">
+          <Globe className="w-4 h-4" />
+          {lang === "ar" ? "English" : "العربية"}
+        </Button>
+      </div>
       {/* Main Container */}
-      <div className="w-full max-w-2xl mx-auto bg-[#e2e8f0] rounded-2xl p-6 md:p-8 shadow-2xl my-auto z-10">
+      <div className="w-full max-w-2xl mx-auto rounded-2xl p-6 md:p-8 shadow-2xl my-auto z-10">
         {/* Logo & Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-block ">
             <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-sky-500 to-indigo-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-sky-500/20">
-                          <User className="w-9 h-9 text-[#00113a]" />
-                        </div>
+              <User className="w-9 h-9 text-[#00113a]" />
+            </div>
           </Link>
           <h1 className="text-2xl md:text-3xl font-extrabold text-[#0b1e48] mb-1">
             {lang === "ar" ? "إنشاء حساب طالب جديد" : "Create New Student Account"}
@@ -147,7 +147,7 @@ const RegisterPage: React.FC = () => {
             {lang === "ar"
               ? "يرجى إدخال بياناتك بدقة للانضمام إلى المنصة التعليمية"
               : "Please enter your details accurately to join the learning platform"}
-      </p>
+          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -163,7 +163,7 @@ const RegisterPage: React.FC = () => {
               {/* Full Name */}
               <div className="space-y-1.5 md:col-span-2">
                 <Label htmlFor="name" className="text-xs text-slate-900 font-medium">
-                  { (lang === "ar" ? "الاسم الكامل" : "Full Name")}
+                  {(lang === "ar" ? "الاسم الكامل" : "Full Name")}
                 </Label>
                 <div className="relative flex items-center">
                   <IdCard className="w-4 h-4 absolute right-3 text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
@@ -237,27 +237,27 @@ const RegisterPage: React.FC = () => {
                 </div>
               </div>
 
-                {/* Phone */}
-               <div className="space-y-1.5">
-                 <Label htmlFor="phone" className="text-xs text-slate-900 font-medium">
-                   {lang === "ar" ? "رقم الهاتف" : "Phone Number"}
+              {/* Phone */}
+              <div className="space-y-1.5">
+                <Label htmlFor="phone" className="text-xs text-slate-900 font-medium">
+                  {lang === "ar" ? "رقم الهاتف" : "Phone Number"}
                 </Label>
-                 <div className="relative flex items-center">
-                   <Phone className="w-4 h-4 absolute right-3 text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
-                   <Input
-                     id="phone"
+                <div className="relative flex items-center">
+                  <Phone className="w-4 h-4 absolute right-3 text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
+                  <Input
+                    id="phone"
                     type="tel"
-                     placeholder="09XX XXX XXX"
-                     className="bg-slate-100/70 border-slate-200 text-xs pr-9 rtl:pr-9 ltr:pl-9 ltr:pr-3 focus-visible:ring-[#0b1e48]"
-                     {...register("phone", { required: true })}
-                   />
-                 </div>
+                    placeholder="09XX XXX XXX"
+                    className="bg-slate-100/70 border-slate-200 text-xs pr-9 rtl:pr-9 ltr:pl-9 ltr:pr-3 focus-visible:ring-[#0b1e48]"
+                    {...register("phone", { required: true })}
+                  />
+                </div>
               </div>
 
               {/* Password */}
               <div className="space-y-1.5">
                 <Label htmlFor="password" className="text-xs text-slate-900 font-medium">
-                  {  (lang === "ar" ? "كلمة المرور" : "Password")}
+                  {(lang === "ar" ? "كلمة المرور" : "Password")}
                 </Label>
                 <div className="relative flex items-center">
                   <Lock className="w-4 h-4 absolute right-3 text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
@@ -274,7 +274,7 @@ const RegisterPage: React.FC = () => {
               {/* Password Confirmation */}
               <div className="space-y-1.5">
                 <Label htmlFor="password_confirmation" className="text-xs text-slate-900 font-medium">
-                  { (lang === "ar" ? "تأكيد كلمة المرور" : "Confirm Password")}
+                  {(lang === "ar" ? "تأكيد كلمة المرور" : "Confirm Password")}
                 </Label>
                 <div className="relative flex items-center">
                   <Lock className="w-4 h-4 absolute right-3 text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
@@ -434,8 +434,8 @@ const RegisterPage: React.FC = () => {
                   ? "جاري إنشاء الحساب..."
                   : "Creating Account..."
                 : lang === "ar"
-                ? "إنشاء الحساب"
-                : "Create Account"}
+                  ? "إنشاء الحساب"
+                  : "Create Account"}
             </Button>
 
             <div className="text-xs text-slate-600 font-medium">
@@ -451,7 +451,7 @@ const RegisterPage: React.FC = () => {
         </form>
       </div>
 
-      
+
     </div>
   );
 };

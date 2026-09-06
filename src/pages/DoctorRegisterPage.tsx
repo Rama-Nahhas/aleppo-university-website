@@ -675,348 +675,359 @@ const DoctorRegisterPage: React.FC = () => {
     //     </CardContent>
     //   </Card>
     // </div>
-  <div
-      className="min-h-screen flex flex-col bg-[#06266d] relative overflow-hidden py-10"
+    <div
+      className="min-h-screen flex flex-col relative overflow-hidden py-10"
       dir={lang === "ar" ? "rtl" : "ltr"}
     >
       {/* Top buttons */}
-       <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-             <Button
-               variant="ghost"
-               size="sm"
-               onClick={() => navigate('/login')}
-               className="gap-1 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"
-             >
-               <ArrowLeft className="w-4 h-4" />
-               { lang === "ar" ? 'العودة' : 'Back'}
-             </Button>
-     
-             <Button variant="ghost" size="sm" onClick={toggleLang} className="gap-1 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm">
-               <Globe className="w-4 h-4" />
-               {lang === "ar" ? "English" : "العربية"}
-             </Button>
-           </div>
-     
-      {/* Main Container */}
-      <div className="w-full max-w-2xl mx-auto bg-[#e2e8f0] rounded-2xl p-6 md:p-8 shadow-2xl my-auto z-10">
-        {/* Logo & Header */}
-        <div className="text-center mb-8 pt-4 md:pt-0">
-          <Link to="/" className="inline-block">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-sky-500 to-indigo-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-sky-500/20">
-              <GraduationCap className="w-9 h-9 text-[#00113a]" />
-            </div>
-          </Link>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-[#0b1e48] mb-1">
-            {lang === "ar" ? "تسجيل دكتور محاضر" : "Doctor Registration"}
-          </h1>
-          <p className="text-sm font-medium text-slate-500">
-            {lang === "ar"
-              ? "أدخل بياناتك الأكاديمية للانضمام إلى أعضاء الهيئة التدريسية"
-              : "Enter your academic details to join the faculty staff"}
-          </p>
-        </div>
+      <div dir="ltr" className="absolute top-4 left-4 right-4 flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/login')}
+           className="gap-2 border border-[#d9a928]/70 bg-[#0b1e48] text-white shadow-md transition-all duration-200 hover:border-[#d9a928] hover:bg-[#d9a928] hover:text-[#0b1e48] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d9a928] focus-visible:ring-offset-2"
+       >
+          <ArrowLeft className="w-4 h-4" />
+          {lang === "ar" ? 'العودة' : 'Back'}
+        </Button>
 
-        {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-600 font-medium text-center">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Section 1: الحساب والمعلومات الأساسية */}
-          <Card className="border-0 shadow-sm bg-white rounded-xl">
-            <CardHeader className="pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2 text-[#1e293b] font-bold text-base">
-                <User className="w-5 h-5 text-slate-700" />
-                <span>
-                  {lang === "ar"
-                    ? "المعلومات الشخصية والحساب"
-                    : "Personal & Account Details"}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Full Name */}
-              <div className="space-y-1.5 md:col-span-2">
-                <Label
-                  htmlFor="name"
-                  className="text-xs text-slate-900 font-medium"
-                >
-                  {lang === "ar" ? "الاسم الكامل" : "Full Name"}
-                </Label>
-                <div className="relative flex items-center">
-                  <User className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
-                  <Input
-                    id="name"
-                    placeholder={
-                      lang === "ar" ? "د. أحمد السوري" : "Dr. Ahmad Al-Souri"
-                    }
-                    className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
-                    {...register("name", { required: requiredMessage })}
-                  />
-                </div>
-                {errors.name && (
-                  <p className="text-xs text-red-500 font-medium mt-1">
-                    {errors.name.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="email"
-                  className="text-xs text-slate-900 font-medium"
-                >
-                  {lang === "ar" ? "البريد الإلكتروني" : "Email"}
-                </Label>
-                <div className="relative flex items-center">
-                  <Mail className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="doctor@example.com"
-                    className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
-                    {...register("email", {
-                      required: requiredMessage,
-                      pattern: {
-                        value: /^\S+@\S+$/,
-                        message:
-                          lang === "ar"
-                            ? "بريد إلكتروني غير صالح"
-                            : "Invalid email",
-                      },
-                    })}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-xs text-red-500 font-medium mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Password */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="password"
-                  className="text-xs text-slate-900 font-medium"
-                >
-                  {lang === "ar" ? "كلمة المرور" : "Password"}
-                </Label>
-                <div className="relative flex items-center">
-                  <Lock className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 rtl:pl-9 ltr:pr-9 focus-visible:ring-[#0b1e48]"
-                    {...register("password", {
-                      required: requiredMessage,
-                      minLength: {
-                        value: 6,
-                        message:
-                          lang === "ar"
-                            ? "كلمة المرور قصيرة"
-                            : "Password is too short",
-                      },
-                    })}
-                  />
-                  <button
-                    type="button"
-                    className="absolute text-slate-400 hover:text-slate-600 rtl:left-3 ltr:right-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-xs text-red-500 font-medium mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Section 2: المؤهلات الأكاديمية */}
-          <Card className="border-0 shadow-sm bg-white rounded-xl">
-            <CardHeader className="pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2 text-[#1e293b] font-bold text-base">
-                <BookOpen className="w-5 h-5 text-slate-700" />
-                <span>
-                  {lang === "ar" ? "المؤهلات الأكاديمية" : "Academic Background"}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* University */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="university"
-                  className="text-xs text-slate-900 font-medium"
-                >
-                  {lang === "ar" ? "الجامعة" : "University"}
-                </Label>
-                <div className="relative flex items-center">
-                  <Building className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
-                  <Input
-                    id="university"
-                    placeholder={
-                      lang === "ar" ? "جامعة حلب" : "University of Aleppo"
-                    }
-                    className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
-                    {...register("university", { required: requiredMessage })}
-                  />
-                </div>
-                {errors.university && (
-                  <p className="text-xs text-red-500 font-medium mt-1">
-                    {errors.university.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Specialization */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="specialization"
-                  className="text-xs text-slate-900 font-medium"
-                >
-                  {lang === "ar" ? "التخصص الدقيق" : "Specialization"}
-                </Label>
-                <div className="relative flex items-center">
-                  <Briefcase className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
-                  <Input
-                    id="specialization"
-                    placeholder={
-                      lang === "ar"
-                        ? "برمجيات وذكاء اصطناعي"
-                        : "Software Engineering"
-                    }
-                    className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
-                    {...register("specialization", {
-                      required: requiredMessage,
-                    })}
-                  />
-                </div>
-                {errors.specialization && (
-                  <p className="text-xs text-red-500 font-medium mt-1">
-                    {errors.specialization.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Graduation Year */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="graduation_year"
-                  className="text-xs text-slate-900 font-medium"
-                >
-                  {lang === "ar"
-                    ? "سنة الحصول على الدكتوراه"
-                    : "Ph.D. Year"}
-                </Label>
-                <div className="relative flex items-center">
-                  <Calendar className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
-                  <Input
-                    id="graduation_year"
-                    type="number"
-                    placeholder="2015"
-                    className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
-                    {...register("graduation_year", {
-                      required: requiredMessage,
-                    })}
-                  />
-                </div>
-                {errors.graduation_year && (
-                  <p className="text-xs text-red-500 font-medium mt-1">
-                    {errors.graduation_year.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Employment Year */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="employment_year"
-                  className="text-xs text-slate-900 font-medium"
-                >
-                  {lang === "ar" ? "سنة بداية التدريس" : "Employment Year"}
-                </Label>
-                <div className="relative flex items-center">
-                  <Calendar className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
-                  <Input
-                    id="employment_year"
-                    type="number"
-                    placeholder="2018"
-                    className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
-                    {...register("employment_year", {
-                      required: requiredMessage,
-                    })}
-                  />
-                </div>
-                {errors.employment_year && (
-                  <p className="text-xs text-red-500 font-medium mt-1">
-                    {errors.employment_year.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Work History */}
-              <div className="space-y-1.5 md:col-span-2">
-                <Label
-                  htmlFor="work_history"
-                  className="text-xs text-slate-900 font-medium"
-                >
-                  {lang === "ar"
-                    ? "المواد المدرسية / سيرة العمل"
-                    : "Teaching / Work History"}
-                </Label>
-                <div className="relative flex items-center">
-                  <History className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
-                  <Input
-                    id="work_history"
-                    placeholder={
-                      lang === "ar"
-                        ? "تدريس هندسة البرمجيات وقواعد البيانات"
-                        : "Teaching Software Engineering and Databases"
-                    }
-                    className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
-                    {...register("work_history", {
-                      required: requiredMessage,
-                    })}
-                  />
-                </div>
-                {errors.work_history && (
-                  <p className="text-xs text-red-500 font-medium mt-1">
-                    {errors.work_history.message}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full h-12 text-base font-bold bg-[#0b1e48] hover:bg-[#06266d] text-white rounded-xl shadow-lg transition-all"
-          >
-            {isSubmitting
-              ? lang === "ar"
-                ? "جاري إنشاء الحساب..."
-                : "Creating Account..."
-              : lang === "ar"
-              ? "إنشاء حساب دكتور"
-              : "Register as Doctor"}
-          </Button>
-        </form>
-      </div>
+        <Button variant="ghost" size="sm" onClick={toggleLang}
+          className="gap-2 border border-[#d9a928]/70 bg-[#0b1e48] text-white shadow-md transition-all duration-200 hover:border-[#d9a928] hover:bg-[#d9a928] hover:text-[#0b1e48] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d9a928] focus-visible:ring-offset-2"
+       >  <Globe className="w-4 h-4" />
+        {lang === "ar" ? "English" : "العربية"}
+      </Button>
     </div>
+
+      {/* Main Container */ }
+  <div className="w-full max-w-2xl mx-auto rounded-2xl p-6 md:p-8 shadow-2xl my-auto z-10">
+    {/* Logo & Header */}
+    <div className="text-center mb-8 pt-4 md:pt-0">
+      <Link to="/" className="inline-block">
+        <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-sky-500 to-indigo-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-sky-500/20">
+          <GraduationCap className="w-9 h-9 text-[#00113a]" />
+        </div>
+      </Link>
+      <h1 className="text-2xl md:text-3xl font-extrabold text-[#0b1e48] mb-1">
+        {lang === "ar" ? "تسجيل دكتور محاضر" : "Doctor Registration"}
+      </h1>
+      <p className="text-sm font-medium text-slate-500">
+        {lang === "ar"
+          ? "أدخل بياناتك الأكاديمية للانضمام إلى أعضاء الهيئة التدريسية"
+          : "Enter your academic details to join the faculty staff"}
+      </p>
+    </div>
+
+    {error && (
+      <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-600 font-medium text-center">
+        {error}
+      </div>
+    )}
+
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Section 1: الحساب والمعلومات الأساسية */}
+      <Card className="border-0 shadow-sm bg-white rounded-xl">
+        <CardHeader className="pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2 text-[#1e293b] font-bold text-base">
+            <User className="w-5 h-5 text-slate-700" />
+            <span>
+              {lang === "ar"
+                ? "المعلومات الشخصية والحساب"
+                : "Personal & Account Details"}
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Full Name */}
+          <div className="space-y-1.5 md:col-span-2">
+            <Label
+              htmlFor="name"
+              className="text-xs text-slate-900 font-medium"
+            >
+              {lang === "ar" ? "الاسم الكامل" : "Full Name"}
+            </Label>
+            <div className="relative flex items-center">
+              <User className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
+              <Input
+                id="name"
+                placeholder={
+                  lang === "ar" ? "د. أحمد السوري" : "Dr. Ahmad Al-Souri"
+                }
+                className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
+                {...register("name", { required: requiredMessage })}
+              />
+            </div>
+            {errors.name && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {errors.name.message}
+              </p>
+            )}
+          </div>
+
+          {/* Email */}
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="email"
+              className="text-xs text-slate-900 font-medium"
+            >
+              {lang === "ar" ? "البريد الإلكتروني" : "Email"}
+            </Label>
+            <div className="relative flex items-center">
+              <Mail className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="doctor@example.com"
+                className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
+                {...register("email", {
+                  required: requiredMessage,
+                  pattern: {
+                    value: /^\S+@\S+$/,
+                    message:
+                      lang === "ar"
+                        ? "بريد إلكتروني غير صالح"
+                        : "Invalid email",
+                  },
+                })}
+              />
+            </div>
+            {errors.email && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="password"
+              className="text-xs text-slate-900 font-medium"
+            >
+              {lang === "ar" ? "كلمة المرور" : "Password"}
+            </Label>
+            <div className="relative flex items-center">
+              <Lock className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 rtl:pl-9 ltr:pr-9 focus-visible:ring-[#0b1e48]"
+                {...register("password", {
+                  required: requiredMessage,
+                  minLength: {
+                    value: 6,
+                    message:
+                      lang === "ar"
+                        ? "كلمة المرور قصيرة"
+                        : "Password is too short",
+                  },
+                })}
+              />
+              <button
+                type="button"
+                className="absolute text-slate-400 hover:text-slate-600 rtl:left-3 ltr:right-3"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Section 2: المؤهلات الأكاديمية */}
+      <Card className="border-0 shadow-sm bg-white rounded-xl">
+        <CardHeader className="pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2 text-[#1e293b] font-bold text-base">
+            <BookOpen className="w-5 h-5 text-slate-700" />
+            <span>
+              {lang === "ar" ? "المؤهلات الأكاديمية" : "Academic Background"}
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* University */}
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="university"
+              className="text-xs text-slate-900 font-medium"
+            >
+              {lang === "ar" ? "الجامعة" : "University"}
+            </Label>
+            <div className="relative flex items-center">
+              <Building className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
+              <Input
+                id="university"
+                placeholder={
+                  lang === "ar" ? "جامعة حلب" : "University of Aleppo"
+                }
+                className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
+                {...register("university", { required: requiredMessage })}
+              />
+            </div>
+            {errors.university && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {errors.university.message}
+              </p>
+            )}
+          </div>
+
+          {/* Specialization */}
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="specialization"
+              className="text-xs text-slate-900 font-medium"
+            >
+              {lang === "ar" ? "التخصص الدقيق" : "Specialization"}
+            </Label>
+            <div className="relative flex items-center">
+              <Briefcase className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
+              <Input
+                id="specialization"
+                placeholder={
+                  lang === "ar"
+                    ? "برمجيات وذكاء اصطناعي"
+                    : "Software Engineering"
+                }
+                className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
+                {...register("specialization", {
+                  required: requiredMessage,
+                })}
+              />
+            </div>
+            {errors.specialization && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {errors.specialization.message}
+              </p>
+            )}
+          </div>
+
+          {/* Graduation Year */}
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="graduation_year"
+              className="text-xs text-slate-900 font-medium"
+            >
+              {lang === "ar"
+                ? "سنة الحصول على الدكتوراه"
+                : "Ph.D. Year"}
+            </Label>
+            <div className="relative flex items-center">
+              <Calendar className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
+              <Input
+                id="graduation_year"
+                type="number"
+                placeholder="2015"
+                className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
+                {...register("graduation_year", {
+                  required: requiredMessage,
+                })}
+              />
+            </div>
+            {errors.graduation_year && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {errors.graduation_year.message}
+              </p>
+            )}
+          </div>
+
+          {/* Employment Year */}
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="employment_year"
+              className="text-xs text-slate-900 font-medium"
+            >
+              {lang === "ar" ? "سنة بداية التدريس" : "Employment Year"}
+            </Label>
+            <div className="relative flex items-center">
+              <Calendar className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
+              <Input
+                id="employment_year"
+                type="number"
+                placeholder="2018"
+                className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
+                {...register("employment_year", {
+                  required: requiredMessage,
+                })}
+              />
+            </div>
+            {errors.employment_year && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {errors.employment_year.message}
+              </p>
+            )}
+          </div>
+
+          {/* Work History */}
+          <div className="space-y-1.5 md:col-span-2">
+            <Label
+              htmlFor="work_history"
+              className="text-xs text-slate-900 font-medium"
+            >
+              {lang === "ar"
+                ? "المواد المدرسية / سيرة العمل"
+                : "Teaching / Work History"}
+            </Label>
+            <div className="relative flex items-center">
+              <History className="w-4 h-4 absolute text-slate-400 pointer-events-none rtl:right-3 ltr:left-3" />
+              <Input
+                id="work_history"
+                placeholder={
+                  lang === "ar"
+                    ? "تدريس هندسة البرمجيات وقواعد البيانات"
+                    : "Teaching Software Engineering and Databases"
+                }
+                className="bg-slate-100/70 border-slate-200 text-slate-900 text-xs rtl:pr-9 ltr:pl-9 focus-visible:ring-[#0b1e48]"
+                {...register("work_history", {
+                  required: requiredMessage,
+                })}
+              />
+            </div>
+            {errors.work_history && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {errors.work_history.message}
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full h-12 text-base font-bold bg-[#0b1e48] hover:bg-[#06266d] text-white rounded-xl shadow-lg transition-all"
+      >
+        {isSubmitting
+          ? lang === "ar"
+            ? "جاري إنشاء الحساب..."
+            : "Creating Account..."
+          : lang === "ar"
+            ? "إنشاء حساب دكتور"
+            : "Register as Doctor"}
+      </Button>
+
+      <div className="text-center text-xs font-medium text-slate-600">
+        {lang === "ar" ? "هل لديك حساب؟" : "Already have an account?"}{" "}
+        <Link
+          to="/login"
+          className="text-[#0b1e48] hover:underline font-bold transition-colors"
+        >
+          {lang === "ar" ? "تسجيل الدخول" : "Login"}
+        </Link>
+      </div>
+    </form>
+  </div>
+    </div >
   );
 };
 

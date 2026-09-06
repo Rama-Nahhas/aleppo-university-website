@@ -63,22 +63,22 @@ const LoginPage: React.FC = () => {
   return (
 
     <div
-      className="min-h-screen flex flex-col bg-[#06266d] relative overflow-hidden"
+      className="min-h-screen flex flex-col relative overflow-hidden"
       dir={lang === "ar" ? "rtl" : "ltr"}
     >
       {/* Top buttons */}
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+      <div dir="ltr" className="absolute top-4 left-4 right-4 flex items-center justify-between">
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/login')}
-          className="gap-1 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"
+          onClick={() => navigate("/")}
+          className="gap-2 border border-[#d9a928]/70 bg-[#0b1e48] text-white shadow-md transition-all duration-200 hover:border-[#d9a928] hover:bg-[#d9a928] hover:text-[#0b1e48] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d9a928] focus-visible:ring-offset-2"
         >
           <ArrowLeft className="w-4 h-4" />
           {lang === "ar" ? 'العودة' : 'Back'}
         </Button>
 
-        <Button variant="ghost" size="sm" onClick={toggleLang} className="gap-1 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm">
+        <Button variant="ghost" size="sm" onClick={toggleLang} className="gap-2 border border-[#d9a928]/70 bg-[#0b1e48] text-white shadow-md transition-all duration-200 hover:border-[#d9a928] hover:bg-[#d9a928] hover:text-[#0b1e48] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d9a928] focus-visible:ring-offset-2">
           <Globe className="w-4 h-4" />
           {lang === "ar" ? "English" : "العربية"}
         </Button>
@@ -86,13 +86,13 @@ const LoginPage: React.FC = () => {
       {/* Main */}
       <div className="flex-1 flex items-center justify-center px-4 py-20">
 
-        <Card className="w-full max-w-[576px] rounded-2xl border-0 bg-[#e5e9f2] shadow-2xl">
+        <Card className="w-full max-w-[640px] rounded-2xl border-0 shadow-2xl">
 
-          <CardHeader className="text-center px-10 pt-10 pb-4">
+          <CardHeader className="px-6 pt-8 pb-5 text-center sm:px-12 sm:pt-12">
 
             {/* Logo */}
             <Link to="/" className="block">
-              <div className="mx-auto mb-4 flex h-[100px] w-[100px] items-center justify-center">
+              <div className="mx-auto mb-5 flex h-[120px] w-[120px] items-center justify-center">
                 <img
                   src="..\public\favicon.ico"
                   alt="جامعة حلب"
@@ -101,17 +101,17 @@ const LoginPage: React.FC = () => {
               </div>
             </Link>
 
-            <CardTitle className="text-[30px] font-extrabold text-[#031c4e]">
+            <CardTitle className="text-[34px] font-extrabold text-[#031c4e]">
               {lang === "ar" ? "جامعة حلب" : "University of Aleppo"}
             </CardTitle>
 
-            <CardDescription className="mt-2 text-base text-[#555d6c]">
+            <CardDescription className="mt-3 text-lg text-[#555d6c]">
               {t("login.title")}
             </CardDescription>
 
           </CardHeader>
 
-          <CardContent className="px-10 pb-9">
+          <CardContent className="px-6 pb-10 sm:px-12 sm:pb-12">
 
             {error && (
               <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
@@ -121,7 +121,7 @@ const LoginPage: React.FC = () => {
 
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="space-y-5"
+              className="space-y-7"
             >
 
               {/* Email */}
@@ -129,7 +129,7 @@ const LoginPage: React.FC = () => {
 
                 <Label
                   htmlFor="email"
-                  className="text-[17px] font-normal text-[#1e1f24]"
+                  className="text-lg font-normal text-[#1e1f24]"
                 >
                   {t("login.email")}
                 </Label>
@@ -140,7 +140,7 @@ const LoginPage: React.FC = () => {
                     id="email"
                     type="email"
                     placeholder="admin@university.local"
-                    className="bg-slate-100/70 border-slate-200 text-xs pl-9 pr-3 focus-visible:ring-[#0b1e48] text-left "
+                    className="h-12 border-slate-200 bg-slate-100/70 pl-10 pr-3 text-base text-left focus-visible:ring-[#0b1e48]"
                     {...register("email", {
                       required:
                         lang === "ar"
@@ -157,7 +157,7 @@ const LoginPage: React.FC = () => {
                   />
 
                   <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#747b8a]">
-                    <Mail className="h-5 w-5" />
+                    <Mail className="h-6 w-6" />
                   </span>
 
                 </div>
@@ -175,7 +175,7 @@ const LoginPage: React.FC = () => {
 
                 <Label
                   htmlFor="password"
-                  className="text-[17px] font-normal text-[#1e1f24]"
+                  className="text-lg font-normal text-[#1e1f24]"
                 >
                   {t("login.password")}
                 </Label>
@@ -187,7 +187,7 @@ const LoginPage: React.FC = () => {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="bg-slate-100/70 border-slate-200 text-xs pl-9 pr-3 focus-visible:ring-[#0b1e48] text-left"
+                    className="h-12 border-slate-200 bg-slate-100/70 pl-10 pr-3 text-base text-left focus-visible:ring-[#0b1e48]"
                     {...register("password", {
                       required:
                         lang === "ar"
@@ -206,18 +206,18 @@ const LoginPage: React.FC = () => {
 
                   <button
                     type="button"
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#747b8a] hover:text-[#031c4e]"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-[#747b8a] hover:text-[#031c4e]"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
+                      <EyeOff className="h-6 w-6" />
                     ) : (
-                      <Eye className="h-5 w-5" />
+                      <Eye className="h-6 w-6" />
                     )}
                   </button>
 
                   <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#747b8a]">
-                    <LockKeyhole className="h-5 w-5" />
+                    <LockKeyhole className="h-6 w-6" />
                   </span>
 
                 </div>
@@ -230,7 +230,7 @@ const LoginPage: React.FC = () => {
 
                 <Link
                   to="/forgot-password"
-                  className="block text-right text-[16px] font-medium text-[#061d50] hover:underline"
+                  className="block text-right text-base font-medium text-[#061d50] hover:underline"
                 >
                   {lang === "ar"
                     ? "هل نسيت كلمة المرور؟"
@@ -242,7 +242,7 @@ const LoginPage: React.FC = () => {
               {/* Login */}
               <Button
                 type="submit"
-                className="mt-2 h-[68px] w-full rounded-lg bg-[#00194d] text-[21px] font-semibold text-white shadow-lg hover:bg-[#021f5c]"
+                className="mt-2 h-14 w-full rounded-lg bg-[#00194d] text-xl font-semibold text-white shadow-lg hover:bg-[#021f5c] sm:h-16"
                 disabled={isSubmitting}
               >
                 {isSubmitting
@@ -251,7 +251,7 @@ const LoginPage: React.FC = () => {
                     : "Verifying..."
                   : t("login.submit")}
 
-                <LogIn className="mr-2 h-5 w-5" />
+                <LogIn className="mr-2 h-6 w-6" />
               </Button>
 
             </form>

@@ -34,7 +34,7 @@ const allNavItems: NavItem[] = [
   // Admin
   { to: '/dashboard/colleges', icon: Building2, labelAr: 'الكليات', labelEn: 'Colleges', roles: ['admin'] },
   { to: '/dashboard/departments', icon: Building2, labelAr: 'الأقسام', labelEn: 'Departments', roles: ['admin'] },
-  { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['admin', 'university_admin', 'academic_doctor'] },
+  { to: '/dashboard/my-schedule', icon: Calendar, labelAr: 'جدولي', labelEn: 'My Schedule', roles: ['admin', 'university_admin',"academic_doctor"] },
   { to: '/dashboard/my-subjects', icon: BookOpen, labelAr: 'موادي', labelEn: 'My Subjects', roles: ['academic_doctor'] },
   { to: '/dashboard/lab-schedules', icon: FlaskConical, labelAr: 'جداول المخبر', labelEn: 'Lab Schedules', roles: ['lab_manager'] },
   { to: '/dashboard/lab-students', icon: Users, labelAr: 'طلاب المخبر', labelEn: 'Lab Students', roles: ['lab_manager'] },
@@ -99,7 +99,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       <aside className={cn("bg-sidebar text-sidebar-foreground flex flex-col transition-all duration-300 border-e border-sidebar-border relative", collapsed ? "w-16" : "w-64")}>
         <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
           <div className="w-9 h-9 bg-sidebar-primary rounded-lg flex items-center justify-center flex-shrink-0">
-            <GraduationCap className="w-5 h-5 text-sidebar-primary-foreground" />
+            {/* <GraduationCap className="w-5 h-5 text-sidebar-primary-foreground" /> */}
+            <img src="../public/favicon.ico" alt="" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">

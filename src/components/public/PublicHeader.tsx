@@ -30,7 +30,7 @@ const PublicHeader: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs">
           <div className="flex items-center gap-4">
             <span>📞 +963-21-2633010</span>
-            <span className="hidden sm:inline">✉ info@alepuniv.edu.sy</span>
+            <span className="hidden sm:inline">✉ universityaleppo0@gmail.com</span>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={toggleLang} className="flex items-center gap-1 hover:text-accent transition-colors">
@@ -47,7 +47,11 @@ const PublicHeader: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 text-primary" />
+              <img
+                src="..\public\favicon.ico"
+                alt="جامعة حلب"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div className="hidden sm:block">
               <p className="font-bold text-sm leading-tight">{lang === 'ar' ? 'جامعة حلب' : 'University of Aleppo'}</p>

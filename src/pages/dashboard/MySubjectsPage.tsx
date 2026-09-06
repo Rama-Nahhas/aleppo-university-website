@@ -280,11 +280,7 @@ const MySubjectsPage: React.FC = () => {
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto" dir={isArabic ? "rtl" : "ltr"}>
           <DialogHeader>
             <DialogTitle>{isArabic ? "إضافة مادة جديدة" : "Add New Subject"}</DialogTitle>
-            <DialogDescription>
-              {isArabic
-                ? "عبّي بيانات المادة وحدد الطلاب المسجلين فيها (اختياري)"
-                : "Fill in the subject details and select enrolled students (optional)"}
-            </DialogDescription>
+            
           </DialogHeader>
 
           <div className="space-y-4">
@@ -294,7 +290,7 @@ const MySubjectsPage: React.FC = () => {
                 id="subject-name"
                 value={createForm.name}
                 onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))}
-                placeholder={isArabic ? "مثال: التشريح" : "e.g. Anatomy"}
+                placeholder={isArabic ? "مثال: نظم تشغيل1" : "e.g. Operating Systems 1"}
               />
             </div>
 
@@ -340,7 +336,7 @@ const MySubjectsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            {/* <div className="space-y-1.5">
               <Label>{isArabic ? "الطلاب المسجلون (اختياري)" : "Enrolled Students (optional)"}</Label>
               {!createForm.department_id || !createForm.year_id ? (
                 <p className="text-xs text-muted-foreground p-3 bg-muted/50 rounded-lg">
@@ -376,7 +372,7 @@ const MySubjectsPage: React.FC = () => {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             <div className="space-y-1.5">
               <Label htmlFor="subject-file" className="flex items-center gap-1.5">

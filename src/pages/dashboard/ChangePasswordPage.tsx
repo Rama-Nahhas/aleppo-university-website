@@ -61,11 +61,11 @@ const ChangePasswordPage: React.FC = () => {
           <CardContent>
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="newPassword">{t('new_password') ?? (lang === 'ar' ? 'كلمة المرور الجديدة' : 'New Password')}</Label>
+                <Label htmlFor="newPassword">{ (lang === 'ar' ? 'كلمة المرور الجديدة' : 'New Password')}</Label>
                 <Input id="newPassword" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">{t('confirm_password') ?? (lang === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm New Password')}</Label>
+                <Label htmlFor="confirmPassword">{ (lang === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm New Password')}</Label>
                 <Input id="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
                 {passwordsMismatch && (
                   <p className="text-xs text-destructive font-medium">

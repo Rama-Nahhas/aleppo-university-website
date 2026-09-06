@@ -36,28 +36,28 @@ const DoctorUnderReviewPage: React.FC = () => {
             <CheckCircle2 className="h-10 w-10" />
           </div>
           <CardTitle className="text-3xl font-bold">
-            {lang === "ar" ? "تم إرسال طلبك بنجاح" : "Request Sent Successfully"}
+            {lang === "ar" ? "تم إرسال طلبك تسجيل حسابك بنجاح" : "Request Sent Successfully for Account Registration"}
           </CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-6 text-center px-8 pb-10">
           <p className="text-lg leading-8 text-muted-foreground sm:text-xl">
             {lang === "ar"
-              ? "تم إرسال طلبك بنجاح! سيتم مراجعة حسابك وطلبك خلال 24 ساعة. يعمل فريقنا على مدار 24 ساعة لخدمتكم."
-              : "Your request has been sent successfully! Your account and request will be reviewed within 24 hours. Our team works 24/7 to support you."}
+              ? "تم إرسال طلبك بنجاح! سيتم مراجعة حسابك وطلبك خلال 24 ساعة,سيتم تدقيق معلوماتك بأسرع وقت ممكن . يعمل فريقنا على مدار 24 ساعة لخدمتكم."
+              : "Your request has been sent successfully! Your account and request will be reviewed within 24 hours. We will verify your information as soon as possible. Our team works around the clock to serve you."}
           </p>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Button className="h-12 text-base font-semibold" onClick={() => navigate("/")}> 
+          <div className="flex justify-center">
+            <Button className="h-12 w-full max-w-xs text-base font-semibold" onClick={() => navigate("/")}> 
               {lang === "ar" ? "العودة للرئيسية" : "Back to Home"}
             </Button>
-            <Button
+            {/* <Button
               className="h-12 text-base font-semibold"
               variant="outline"
               onClick={() => navigate("/login")}
             >
               {lang === "ar" ? "تسجيل الخروج" : "Log Out"}
-            </Button>
+            </Button> */}
           </div>
         </CardContent>
       </Card>

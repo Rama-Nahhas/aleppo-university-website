@@ -11,7 +11,7 @@ export interface DoctorSubjectLookup {
 }
 
 export interface DoctorSubject {
-  id: number;
+  id: number; 
   department_id: number;
   year_id: number;
   user_id: number;
@@ -19,7 +19,7 @@ export interface DoctorSubject {
   image_url: string;
   created_at: string;
   updated_at: string;
-  department: DoctorSubjectLookup;
+  // department: DoctorSubjectLookup; 
   year: DoctorSubjectLookup;
 }
 
