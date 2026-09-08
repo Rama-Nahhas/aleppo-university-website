@@ -8,20 +8,14 @@ import {
   useScheduleActions,
   useCollegeLookups,
 } from "@/hooks/students/useApiActions";
+import { useYears, getYearsForCollege } from "@/hooks/useYears";
+import type { Year } from "@/types";
 import { cn } from "@/lib/utils";
 import { resolveRoleName } from "@/lib/roleUtils";
 import type { RoleName } from "@/types";
 import DoctorSchedulesPage from "@/pages/dashboard/DoctorSchedulesPage";
 
 const COLLEGE_ID = 1;
-
-const ORDINAL_YEAR_NAMES: Record<number, string> = {
-  1: "السنة الأولى",
-  2: "السنة الثانية",
-  3: "السنة الثالثة",
-  4: "السنة الرابعة",
-  5: "السنة الخامسة",
-};
 
 const formatDate = (value: string | null, lang: string) => {
   if (!value) return "-";
@@ -78,14 +72,19 @@ const StudentSchedulePage: React.FC = () => {
   const { lang } = useLanguage();
   const { fetchStudentSchedule, loading } = useScheduleActions();
   const { fetchDepartments } = useCollegeLookups();
+  const { fetchYears } = useYears();
   const [schedules, setSchedules] = useState<YearSchedule[]>([]);
   const [departmentName, setDepartmentName] = useState<string | null>(null);
+  const [years, setYears] = useState<Year[]>([]);
   const [showOthers, setShowOthers] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
       const data = await fetchStudentSchedule();
       setSchedules(data?.schedules_by_year ?? []);
+
+      const colleges = await fetchYears();
+      setYears(getYearsForCollege(colleges, COLLEGE_ID));
 
       if (data && data.schedules_by_year.length > 0) {
         const departments = await fetchDepartments(COLLEGE_ID);
@@ -99,7 +98,9 @@ const StudentSchedulePage: React.FC = () => {
 
   if (loading) return <Loader2 className="animate-spin" />;
 
-  const ownYearName = user?.year_id ? ORDINAL_YEAR_NAMES[user.year_id] : undefined;
+  const ownYearName = user?.year_id
+    ? years.find((y) => y.id === user.year_id)?.name
+    : undefined;
   const ownSchedule = schedules.find((s) => s.year_name === ownYearName);
   const otherSchedules = schedules.filter((s) => s.year_name !== ownYearName);
 

@@ -44,6 +44,8 @@ import {
   useCollegeLookups,
   useUpdateStudentProfile,
 } from "@/hooks/students/useApiActions";
+import { useYears, getYearsForCollege } from "@/hooks/useYears";
+import type { Year } from "@/types";
 
 const COLLEGE_ID = 1;
 
@@ -109,8 +111,10 @@ const ProfilePage: React.FC = () => {
   const [editForm, setEditForm] = useState<EditFormState>(emptyEditForm);
   const [formError, setFormError] = useState<string | null>(null);
   const [departments, setDepartments] = useState<NamedOption[]>([]);
+  const [years, setYears] = useState<Year[]>([]);
 
   const { fetchDepartments } = useCollegeLookups();
+  const { fetchYears, loading: yearsLoading } = useYears();
   const { updateProfile, loading: isSaving, error: saveError } = useUpdateStudentProfile();
 
   useEffect(() => {
@@ -160,12 +164,16 @@ const ProfilePage: React.FC = () => {
     });
   };
 
-  // تحميل قائمة الأقسام (من الـ API) مرة وحدة لما الطالب يفتح وضع التعديل
+  // تحميل قائمة الأقسام والسنوات (من الـ API) مرة وحدة لما الطالب يفتح وضع التعديل
   useEffect(() => {
     if (!isStudent || !isEditing || departments.length > 0) return;
     (async () => {
-      const deps = await fetchDepartments(COLLEGE_ID);
+      const [deps, colleges] = await Promise.all([
+        fetchDepartments(COLLEGE_ID),
+        fetchYears(),
+      ]);
       setDepartments(deps);
+      setYears(getYearsForCollege(colleges, COLLEGE_ID));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStudent, isEditing]);
@@ -373,16 +381,16 @@ const ProfilePage: React.FC = () => {
                     </div>
                     <div className="space-y-1.5">
                       <Label>{isArabic ? "السنة" : "Year"}</Label>
-                      <Select value={editForm.year_id} onValueChange={(v) => handleFieldChange("year_id", v)}>
+                      <Select value={editForm.year_id} onValueChange={(v) => handleFieldChange("year_id", v)} disabled={yearsLoading}>
                         <SelectTrigger>
-                          <SelectValue placeholder={isArabic ? "اختر السنة" : "Select Year"} />
+                          <SelectValue placeholder={yearsLoading ? (isArabic ? "جاري التحميل..." : "Loading...") : (isArabic ? "اختر السنة" : "Select Year")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="1">{isArabic ? "السنة الأولى" : "First Year"}</SelectItem>
-                          <SelectItem value="2">{isArabic ? "السنة الثانية" : "Second Year"}</SelectItem>
-                          <SelectItem value="3">{isArabic ? "السنة الثالثة" : "Third Year"}</SelectItem>
-                          <SelectItem value="4">{isArabic ? "السنة الرابعة" : "Fourth Year"}</SelectItem>
-                          <SelectItem value="5">{isArabic ? "السنة الخامسة" : "Fifth Year"}</SelectItem>
+                          {years.map((y) => (
+                            <SelectItem key={y.id} value={String(y.id)}>
+                              {y.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>

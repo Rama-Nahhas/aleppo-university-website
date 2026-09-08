@@ -32,11 +32,29 @@ export interface College {
 }
 
 export interface Department {
-  id: number; 
+  id: number;
   name: string;
   nameEn?: string;
   college_id: number;
   college?: College;
+}
+
+/** سنة دراسية واحدة كما ترجع من GET /years - المعرّف والاسم من الـ backend دائماً */
+export interface Year {
+  id: number;
+  name: string;
+}
+
+/** كلية مع سنينها الدراسية، كما ترجع ضمن GET /years */
+export interface CollegeYears {
+  id: number;
+  name: string;
+  years: Year[];
+}
+
+export interface YearsResponse {
+  status: string;
+  data: CollegeYears[];
 }
 
 export interface Course {

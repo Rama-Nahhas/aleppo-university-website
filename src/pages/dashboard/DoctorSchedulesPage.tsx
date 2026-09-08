@@ -10,7 +10,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { AdminSchedule, useScheduleAdminActions } from '@/hooks/useScheduleAdminActions';
 import { NamedOption, useCollegeLookups } from '@/hooks/students/useApiActions';
-import { STUDY_YEARS } from '@/lib/constants';
+import { useYears, getYearsForCollege } from '@/hooks/useYears';
+import type { Year } from '@/types';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/ui/pagination-controls';
 
@@ -29,9 +30,11 @@ const DoctorSchedulesPage: React.FC = () => {
     loading,
   } = useScheduleAdminActions();
   const { fetchDepartments } = useCollegeLookups();
+  const { fetchYears, loading: yearsLoading } = useYears();
 
   const [data, setData] = useState<AdminSchedule[]>([]);
   const [departments, setDepartments] = useState<NamedOption[]>([]);
+  const [years, setYears] = useState<Year[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -60,6 +63,7 @@ const DoctorSchedulesPage: React.FC = () => {
     if (canChangeDepartment) {
       fetchDepartments(COLLEGE_ID).then(setDepartments);
     }
+    fetchYears().then((colleges) => setYears(getYearsForCollege(colleges, COLLEGE_ID)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -216,10 +220,12 @@ const DoctorSchedulesPage: React.FC = () => {
             )}
             <div>
               <Label>{lang === 'ar' ? 'السنة' : 'Year'}</Label>
-              <Select value={createForm.year_id} onValueChange={v => setCreateForm(f => ({ ...f, year_id: v }))}>
-                <SelectTrigger><SelectValue placeholder={lang === 'ar' ? 'اختر السنة' : 'Select Year'} /></SelectTrigger>
+              <Select value={createForm.year_id} onValueChange={v => setCreateForm(f => ({ ...f, year_id: v }))} disabled={yearsLoading}>
+                <SelectTrigger>
+                  <SelectValue placeholder={yearsLoading ? (lang === 'ar' ? 'جاري التحميل...' : 'Loading...') : (lang === 'ar' ? 'اختر السنة' : 'Select Year')} />
+                </SelectTrigger>
                 <SelectContent>
-                  {STUDY_YEARS.map(y => <SelectItem key={y.id} value={String(y.id)}>{y.name}</SelectItem>)}
+                  {years.map(y => <SelectItem key={y.id} value={String(y.id)}>{y.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

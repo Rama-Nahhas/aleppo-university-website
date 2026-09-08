@@ -36,19 +36,13 @@ import {
   useBrowseSubjects,
   useCollegeLookups,
 } from "@/hooks/students/useApiActions";
+import { useYears, getYearsForCollege } from "@/hooks/useYears";
+import type { Year } from "@/types";
 import { usePagination } from "@/hooks/usePagination";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 
 const PAGE_SIZE = 9;
 const COLLEGE_ID = 1;
-
-const YEAR_OPTIONS = [
-  { id: 1, ar: "السنة الأولى", en: "First Year" },
-  { id: 2, ar: "السنة الثانية", en: "Second Year" },
-  { id: 3, ar: "السنة الثالثة", en: "Third Year" },
-  { id: 4, ar: "السنة الرابعة", en: "Fourth Year" },
-  { id: 5, ar: "السنة الخامسة", en: "Fifth Year" },
-];
 
 const formatFileSize = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
@@ -61,9 +55,11 @@ const BrowseMaterialsPage: React.FC = () => {
   const isArabic = lang === "ar";
   const { fetchAllSubjects, loading } = useBrowseSubjects();
   const { fetchDepartments } = useCollegeLookups();
+  const { fetchYears } = useYears();
 
   const [subjects, setSubjects] = useState<AllSubjectItem[]>([]);
   const [departments, setDepartments] = useState<NamedOption[]>([]);
+  const [years, setYears] = useState<Year[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   const [departmentId, setDepartmentId] = useState<string>("all");
@@ -74,9 +70,14 @@ const BrowseMaterialsPage: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const [subs, deps] = await Promise.all([fetchAllSubjects(), fetchDepartments(COLLEGE_ID)]);
+      const [subs, deps, colleges] = await Promise.all([
+        fetchAllSubjects(),
+        fetchDepartments(COLLEGE_ID),
+        fetchYears(),
+      ]);
       setSubjects(subs);
       setDepartments(deps);
+      setYears(getYearsForCollege(colleges, COLLEGE_ID));
       setLoaded(true);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -131,8 +132,8 @@ const BrowseMaterialsPage: React.FC = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{isArabic ? "كل السنوات" : "All Years"}</SelectItem>
-            {YEAR_OPTIONS.map((y) => (
-              <SelectItem key={y.id} value={String(y.id)}>{isArabic ? y.ar : y.en}</SelectItem>
+            {years.map((y) => (
+              <SelectItem key={y.id} value={String(y.id)}>{y.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>

@@ -12,6 +12,13 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   GraduationCap,
   Globe,
   ArrowLeft,
@@ -27,9 +34,16 @@ import {
   Calendar,
   History
 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthActions } from "@/hooks/useAuthActions";
+import {
+  NamedOption,
+  useCollegeLookups,
+} from "@/hooks/students/useApiActions";
+
+// نفس اتفاقية باقي المشروع: كلية واحدة (id=1)
+const COLLEGE_ID = 1;
 
 export interface DoctorRegisterFormData {
   name: string;
@@ -40,6 +54,7 @@ export interface DoctorRegisterFormData {
   graduation_year: string;
   employment_year: string;
   work_history: string;
+  department_id: string;
 }
 
 const DoctorRegisterPage: React.FC = () => {
@@ -47,7 +62,18 @@ const DoctorRegisterPage: React.FC = () => {
   const { toast } = useToast();
   const { lang, toggleLang } = useLanguage();
   const { handleRegisterDoctor, isSubmitting, error } = useAuthActions();
+  const { fetchDepartments } = useCollegeLookups();
   const [showPassword, setShowPassword] = useState(false);
+  const [departments, setDepartments] = useState<NamedOption[]>([]);
+
+  useEffect(() => {
+    const loadDepartments = async () => {
+      const data = await fetchDepartments(COLLEGE_ID);
+      setDepartments(data);
+    };
+    loadDepartments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // إذا كان في تسجيل سابق لسه ما تحقق فيه بالكود (OTP)، رجّعه فوراً
   // لصفحة التحقق بدل ما يبلّش تسجيل من جديد
@@ -63,6 +89,7 @@ const DoctorRegisterPage: React.FC = () => {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<DoctorRegisterFormData>({
@@ -75,6 +102,7 @@ const DoctorRegisterPage: React.FC = () => {
       graduation_year: "",
       employment_year: "",
       work_history: "",
+      department_id: "",
     },
   });
 
@@ -877,6 +905,44 @@ const DoctorRegisterPage: React.FC = () => {
             {errors.university && (
               <p className="text-xs text-red-500 font-medium mt-1">
                 {errors.university.message}
+              </p>
+            )}
+          </div>
+
+          {/* Department */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-slate-900 font-medium">
+              {lang === "ar" ? "القسم" : "Department"}
+            </Label>
+            <Controller
+              control={control}
+              name="department_id"
+              rules={{ required: requiredMessage }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="bg-slate-100/70 border-slate-200 text-xs focus:ring-[#0b1e48]">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-slate-400" />
+                      <SelectValue
+                        placeholder={
+                          lang === "ar" ? "اختر القسم" : "Select Department"
+                        }
+                      />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map((dep) => (
+                      <SelectItem key={dep.id} value={String(dep.id)}>
+                        {dep.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.department_id && (
+              <p className="text-xs text-red-500 font-medium mt-1">
+                {errors.department_id.message}
               </p>
             )}
           </div>

@@ -118,6 +118,7 @@ export const useAuthActions = () => {
         graduation_year: Number(formData.graduation_year),
         employment_year: Number(formData.employment_year),
         work_history: formData.work_history,
+        department_id: Number(formData.department_id),
         role: "doctor",
       };
 

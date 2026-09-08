@@ -30,11 +30,14 @@ import { resolveRoleName } from '@/lib/roleUtils';
 import type { RoleName } from '@/types';
 import { Plus, Trash2, Megaphone, Calendar, Inbox, Loader2, Globe2 } from 'lucide-react';
 import { Announcement, useAnnouncementActions } from '@/hooks/useAnnouncementActions';
-import { STUDY_YEARS } from '@/lib/constants';
+import { useYears, getYearsForCollege } from '@/hooks/useYears';
+import type { Year } from '@/types';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/ui/pagination-controls';
 
 const PAGE_SIZE = 9;
+// نفس اتفاقية باقي المشروع: كلية واحدة (id=1)
+const COLLEGE_ID = 1;
 
 const AnnouncementsPage: React.FC = () => {
   const { user } = useAuth();
@@ -56,6 +59,7 @@ const AnnouncementsPage: React.FC = () => {
     deleteAnnouncement,
     loading,
   } = useAnnouncementActions();
+  const { fetchYears, loading: yearsLoading } = useYears();
 
   const [data, setData] = useState<Announcement[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -64,6 +68,7 @@ const AnnouncementsPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ title: '', content: '', year_id: '' });
   const [formError, setFormError] = useState<string | null>(null);
+  const [years, setYears] = useState<Year[]>([]);
   const [saving, setSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<Announcement | null>(null);
@@ -92,6 +97,9 @@ const AnnouncementsPage: React.FC = () => {
     setForm({ title: '', content: '', year_id: '' });
     setFormError(null);
     setDialogOpen(true);
+    if (isDoctor && years.length === 0) {
+      fetchYears().then((colleges) => setYears(getYearsForCollege(colleges, COLLEGE_ID)));
+    }
   };
 
   const handleSave = async () => {
@@ -224,10 +232,12 @@ const AnnouncementsPage: React.FC = () => {
             {isDoctor && (
               <div className="space-y-1.5">
                 <Label>{isArabic ? 'السنة' : 'Year'}</Label>
-                <Select value={form.year_id} onValueChange={(v) => setForm((f) => ({ ...f, year_id: v }))}>
-                  <SelectTrigger><SelectValue placeholder={isArabic ? 'اختر السنة' : 'Select Year'} /></SelectTrigger>
+                <Select value={form.year_id} onValueChange={(v) => setForm((f) => ({ ...f, year_id: v }))} disabled={yearsLoading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={yearsLoading ? (isArabic ? 'جاري التحميل...' : 'Loading...') : (isArabic ? 'اختر السنة' : 'Select Year')} />
+                  </SelectTrigger>
                   <SelectContent>
-                    {STUDY_YEARS.map((y) => <SelectItem key={y.id} value={String(y.id)}>{y.name}</SelectItem>)}
+                    {years.map((y) => <SelectItem key={y.id} value={String(y.id)}>{y.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">

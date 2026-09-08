@@ -37,6 +37,8 @@ import {
   NamedOption,
   useCollegeLookups,
 } from "@/hooks/students/useApiActions";
+import { useYears, getYearsForCollege } from "@/hooks/useYears";
+import type { Year } from "@/types";
 
 const COLLEGE_ID = 1;
 
@@ -60,14 +62,20 @@ const RegisterPage: React.FC = () => {
   const { lang, t, toggleLang } = useLanguage();
   const { handleRegisterStu, isSubmitting, error } = useAuthActions();
   const { fetchDepartments } = useCollegeLookups();
+  const { fetchYears, loading: yearsLoading } = useYears();
   const [departments, setDepartments] = useState<NamedOption[]>([]);
+  const [years, setYears] = useState<Year[]>([]);
 
   useEffect(() => {
-    const loadDepartments = async () => {
-      const data = await fetchDepartments(COLLEGE_ID);
+    const loadLookups = async () => {
+      const [data, colleges] = await Promise.all([
+        fetchDepartments(COLLEGE_ID),
+        fetchYears(),
+      ]);
       setDepartments(data);
+      setYears(getYearsForCollege(colleges, COLLEGE_ID));
     };
-    loadDepartments();
+    loadLookups();
   }, []);
 
   const {
@@ -340,21 +348,25 @@ const RegisterPage: React.FC = () => {
                   name="year_id"
                   rules={{ required: true }}
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select value={field.value} onValueChange={field.onChange} disabled={yearsLoading}>
                       <SelectTrigger className="bg-slate-100/70 border-slate-200 text-xs focus:ring-[#0b1e48]">
                         <div className="flex items-center gap-2">
                           <Bookmark className="w-4 h-4 text-slate-400" />
                           <SelectValue
-                            placeholder={lang === "ar" ? "اختر السنة" : "Select Year"}
+                            placeholder={
+                              yearsLoading
+                                ? (lang === "ar" ? "جاري التحميل..." : "Loading...")
+                                : (lang === "ar" ? "اختر السنة" : "Select Year")
+                            }
                           />
                         </div>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">{lang === "ar" ? "السنة الأولى" : "First Year"}</SelectItem>
-                        <SelectItem value="2">{lang === "ar" ? "السنة الثانية" : "Second Year"}</SelectItem>
-                        <SelectItem value="3">{lang === "ar" ? "السنة الثالثة" : "Third Year"}</SelectItem>
-                        <SelectItem value="4">{lang === "ar" ? "السنة الرابعة" : "Fourth Year"}</SelectItem>
-                        <SelectItem value="5">{lang === "ar" ? "السنة الخامسة" : "Fifth Year"}</SelectItem>
+                        {years.map((y) => (
+                          <SelectItem key={y.id} value={String(y.id)}>
+                            {y.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}

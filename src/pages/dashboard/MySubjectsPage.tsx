@@ -48,6 +48,8 @@ import {
   useDoctorSubjectActions,
 } from "@/hooks/doctor/useApiActions";
 import { NamedOption, useCollegeLookups } from "@/hooks/students/useApiActions";
+import { useYears, getYearsForCollege } from "@/hooks/useYears";
+import type { Year } from "@/types";
 import { usePagination } from "@/hooks/usePagination";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 
@@ -79,6 +81,7 @@ const MySubjectsPage: React.FC = () => {
     loading: isSaving,
   } = useDoctorSubjectActions();
   const { fetchDepartments } = useCollegeLookups();
+  const { fetchYears, loading: yearsLoading } = useYears();
 
   const [subjects, setSubjects] = useState<DoctorSubject[]>([]);
   const [pageLoading, setPageLoading] = useState<boolean>(true);
@@ -90,6 +93,7 @@ const MySubjectsPage: React.FC = () => {
   const [selectedStudentIds, setSelectedStudentIds] = useState<number[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [departments, setDepartments] = useState<NamedOption[]>([]);
+  const [years, setYears] = useState<Year[]>([]);
   const [students, setStudents] = useState<StudentOption[]>([]);
   const [studentsLoading, setStudentsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -110,12 +114,16 @@ const MySubjectsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // تحميل الأقسام أول ما نفتح نموذج الإنشاء
+  // تحميل الأقسام والسنوات أول ما نفتح نموذج الإنشاء
   useEffect(() => {
     if (!isCreateOpen || departments.length > 0) return;
     (async () => {
-      const deps = await fetchDepartments(COLLEGE_ID);
+      const [deps, colleges] = await Promise.all([
+        fetchDepartments(COLLEGE_ID),
+        fetchYears(),
+      ]);
       setDepartments(deps);
+      setYears(getYearsForCollege(colleges, COLLEGE_ID));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCreateOpen]);
@@ -321,16 +329,17 @@ const MySubjectsPage: React.FC = () => {
                 <Select
                   value={createForm.year_id}
                   onValueChange={(v) => setCreateForm((p) => ({ ...p, year_id: v }))}
+                  disabled={yearsLoading}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={isArabic ? "اختر السنة" : "Select Year"} />
+                    <SelectValue placeholder={yearsLoading ? (isArabic ? "جاري التحميل..." : "Loading...") : (isArabic ? "اختر السنة" : "Select Year")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">{isArabic ? "السنة الأولى" : "First Year"}</SelectItem>
-                    <SelectItem value="2">{isArabic ? "السنة الثانية" : "Second Year"}</SelectItem>
-                    <SelectItem value="3">{isArabic ? "السنة الثالثة" : "Third Year"}</SelectItem>
-                    <SelectItem value="4">{isArabic ? "السنة الرابعة" : "Fourth Year"}</SelectItem>
-                    <SelectItem value="5">{isArabic ? "السنة الخامسة" : "Fifth Year"}</SelectItem>
+                    {years.map((y) => (
+                      <SelectItem key={y.id} value={String(y.id)}>
+                        {y.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

@@ -39,6 +39,7 @@ export interface RegisterDoctorData {
   graduation_year: number;
   employment_year: number;
   work_history: string;
+  department_id: number;
   role: string;
 }
 

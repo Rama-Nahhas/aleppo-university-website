@@ -4,6 +4,9 @@ import apiClient from "@/lib/axios";
 
 export const PASSING_MARK = 60;
 
+// نفس اتفاقية باقي المشروع: كلية واحدة (id=1)
+const EXAM_COLLEGE_ID = 1;
+
 export interface YearOption {
   id: number;
   name: string;
@@ -88,11 +91,13 @@ export const useExamEmployeeActions = () => {
 
   const fetchYears = async (): Promise<YearOption[]> => {
     try {
-      // نفس اتفاقية باقي المشروع: كلية واحدة (id=1)، فبنجيب سنينها المسطّحة مباشرة
+      // GET /years بترجع كل الكليات مع سنينها دفعة وحدة (بدون فلترة سيرفر)، فبنلقط كليتنا يدوياً
       const response = await apiClient.get<{
-        data: { college: unknown; years: YearOption[] };
-      }>("/years", { params: { college_id: 1 } });
-      return response.data.data.years;
+        status: string;
+        data: { id: number; name: string; years: YearOption[] }[];
+      }>("/years");
+      const colleges = response.data.data ?? [];
+      return colleges.find((c) => c.id === EXAM_COLLEGE_ID)?.years ?? [];
     } catch {
       return [];
     }
